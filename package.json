@@ -1,4 +1,11 @@
 {
+  "name": "fallout-utility",
+  "url": "http://github.com/FalloutStudios/Fallout-utility.git",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js --testmode"
+  },
   "dependencies": {
     "commander": "^8.2.0",
     "prompt-sync": "^4.1.6",
