@@ -24,8 +24,8 @@ console.log('Fallout util v' + util.version);
 var question = util.ask("What is your name? ");
 console.log("Your name is " + question);
 ```
-```md
-**1** Fallout util v1.0.1
-**2** What is your name **AMOGUS**
-**3** Your name is AMOGUS
+```yml
+1: Fallout util v1.0.1
+2: What is your name? AMOGUS
+3: Your name is AMOGUS
 ```
