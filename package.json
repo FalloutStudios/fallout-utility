@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "node ./test/index.js",
-    "test": "node ./test/index.js --testmode"
+    "test": "node ./test/index.js"
   },
   "dependencies": {
     "prompt-sync": "^4.1.6"
