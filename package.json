@@ -1,8 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "description": "Utility module for Fallout repositories",
-  "version": "1.0.1",
+  "version": "1.0.1-2",
   "license": "MIT",
   "main": "index.js",
   "url": "http://github.com/FalloutStudios/Fallout-utility.git",
