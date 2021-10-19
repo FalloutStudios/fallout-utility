@@ -7,6 +7,27 @@
     dMP     dMP dMP dMMMMMP dMMMMMP VMMMP"  VMMMP"    dMP           VMMMP"    dMP   dMP dMMMMMP
 
 */
+const Fs = require("fs");
+const Path = require("path");
 
-const loader = require('./scripts/index.js');
-module.exports = new loader();
+const modulesDir = Fs.readdirSync(__dirname + '/scripts/').filter(file => file.endsWith('.js'));
+
+
+module.exports = new create();
+
+function create() {
+    this.test = () => { console.log(modulesDir) };
+
+    for (const file of modulesDir) {
+        let name = Path.parse(file).name;
+
+        let requireModule = require(__dirname + '/scripts/' + file);
+        
+        try {
+            let readyImport = new requireModule();
+            this[name] = readyImport;
+        } catch (e) {
+            this[name] = requireModule;
+        }
+    }
+}
