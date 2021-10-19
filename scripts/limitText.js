@@ -4,3 +4,5 @@ module.exports = (text = null, length = 0, endsWith = '...') => {
     }
     return text;
 }
+
+// Limit the length of a string

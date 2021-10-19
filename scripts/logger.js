@@ -1,7 +1,5 @@
-// Modules
 const replaceAll = require('./replaceAll');
 
-// Export
 module.exports = new create();
 
 function create() {
@@ -66,3 +64,5 @@ function make(message, prefix = null, level = 0){
     }
     logger(message, prefix, level);
 }
+
+// console logger with prefix

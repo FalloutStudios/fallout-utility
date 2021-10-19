@@ -14,3 +14,5 @@ module.exports = (text = '', prefix = '') => {
 
     return response;
 }
+
+// Get command information from string

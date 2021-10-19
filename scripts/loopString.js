@@ -5,3 +5,5 @@ module.exports = (num = 0, str = '') => {
     }
     return returnVal;
 }
+
+// Loop string

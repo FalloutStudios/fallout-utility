@@ -20,3 +20,5 @@ module.exports = (text = '', removeQuotations = false) => {
 
     return text;
 }
+
+// Split words into object without affecting quoted strings

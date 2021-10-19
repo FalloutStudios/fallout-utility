@@ -9,3 +9,5 @@ module.exports = (object = [], skip = 0) => {
         return outputText.trim();
     }
 }
+
+// Make sentence from an object

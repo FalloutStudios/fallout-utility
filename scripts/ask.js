@@ -11,3 +11,5 @@ module.exports = (message, enableStop = true) => {
     }
     return ask;
 }
+
+// Get user input with or without loop
