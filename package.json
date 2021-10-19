@@ -4,6 +4,7 @@
   "version": "1.0.3",
   "license": "MIT",
   "main": "index.js",
+  "keywords": ["fallout", "fallout-utility", "falloutstudios"],
   "url": "http://github.com/FalloutStudios/Fallout-utility.git",
   "homepage": "https://github.com/FalloutStudios/Fallout-utility#readme",
   "repository": {
