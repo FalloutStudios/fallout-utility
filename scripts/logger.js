@@ -7,9 +7,9 @@ module.exports = new create();
 function create() {
     this.defaultPrefix = null;
 
-    this.log = function(message = null, prefix = this.defaultPrefix) { return logger(message, prefix, 0); };
-    this.warn = function(message = null, prefix = this.defaultPrefix) { return logger(message, prefix, 1); };
-    this.error = function(message = null, prefix = this.defaultPrefix) { return logger(message, prefix, 2); };
+    this.log = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 0); };
+    this.warn = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 1); };
+    this.error = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 2); };
 }
 
 // Functions
@@ -53,4 +53,16 @@ function logger(message, prefix = null, level = 0) {
     function replacePrefix (string, prefixName) {
         return replaceAll(string, '%prefix%', prefixName);
     }
+}
+function make(message, prefix = null, level = 0){
+    if(typeof message == 'string') { 
+        message = message.split('\n');
+
+        for (let value of message) {
+            logger(value.trim(), prefix, level);
+        }
+
+        return message;
+    }
+    logger(message, prefix, level);
 }
