@@ -16,8 +16,6 @@ const modulesDir = Fs.readdirSync(__dirname + '/scripts/').filter(file => file.e
 module.exports = new create();
 
 function create() {
-    this.test = () => { console.log(modulesDir) };
-
     for (const file of modulesDir) {
         let name = Path.parse(file).name;
 
