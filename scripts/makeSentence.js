@@ -8,6 +8,7 @@ module.exports = (object = [], skip = 0) => {
         }
         return outputText.trim();
     }
+    return '';
 }
 
 // Make sentence from an object

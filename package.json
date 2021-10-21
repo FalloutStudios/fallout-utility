@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "license": "MIT",
   "main": "index.js",
   "keywords": ["fallout", "fallout-utility", "falloutstudios"],

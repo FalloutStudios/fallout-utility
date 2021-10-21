@@ -25,7 +25,7 @@ var question = util.ask("What is your name? ");
 console.log("Your name is " + question);
 ```
 ```yml
-1: Fallout util v1.0.35
+1: Fallout util v1.0.36
 2: What is your name? AMOGUS
 3: Your name is AMOGUS
 ```
