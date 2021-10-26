@@ -1,4 +1,4 @@
-const util = require('../index.js');
+const Util = require('../index.js');
 
-util.logger.log('Fallout util v' + util.version);
-util.logger.log(util);
+const log = new Util.Logger();
+log.log('Fallout util v' + Util.version);

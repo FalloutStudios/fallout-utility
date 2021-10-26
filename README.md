@@ -16,14 +16,17 @@ console.log(util.version);
 ```
 
 ### Example
+
 ```js
-const util = require("fallout-utility");
+const { Logger, ask, version } = require('../index.js');
 
-console.log('Fallout util v' + util.version);
+const log = new Logger();
+log.log('Fallout util v' + version);
 
-var question = util.ask("What is your name? ");
-console.log("Your name is " + question);
+var question = ask("What is your name? ");
+log.log("Your name is " + question);
 ```
+
 ```yml
 1: Fallout util v1.0.36
 2: What is your name? AMOGUS
