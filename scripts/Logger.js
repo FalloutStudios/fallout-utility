@@ -1,13 +1,13 @@
 const replaceAll = require('./replaceAll');
 
-module.exports = new create();
+module.exports = class Logger {
+    constructor (defaultPrefix){
+        this.defaultPrefix = defaultPrefix;
+    }
 
-function create() {
-    this.defaultPrefix = null;
-
-    this.log = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 0); };
-    this.warn = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 1); };
-    this.error = function(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 2); };
+    log(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 0); };
+    warn(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 1); };
+    error(message = null, prefix = this.defaultPrefix) { return make(message, prefix, 2); };
 }
 
 // Functions
