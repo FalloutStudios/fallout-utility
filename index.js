@@ -13,9 +13,9 @@ const Path = require("path");
 const modulesDir = Fs.readdirSync(__dirname + '/scripts/').filter(file => file.endsWith('.js'));
 
 
-module.exports = new create();
+module.exports = new Create();
 
-function create() {
+function Create() {
     for (const file of modulesDir) {
         let name = Path.parse(file).name;
         
