@@ -18,14 +18,9 @@ module.exports = new create();
 function create() {
     for (const file of modulesDir) {
         let name = Path.parse(file).name;
-
-        let requireModule = require(__dirname + '/scripts/' + file);
         
-        try {
-            let readyImport = new requireModule();
-            this[name] = readyImport;
-        } catch (e) {
-            this[name] = requireModule;
-        }
+        
+        let requireModule = require(__dirname + '/scripts/' + file);
+        this[name] = requireModule;
     }
 }
