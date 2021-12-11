@@ -88,7 +88,7 @@ module.exports = class Logger {
         var color = null;
     
         switch(level) {
-            case 0:
+            case 0: break;
             case 1:
                 levelName = 'WARN';
                 color = '\x1b[33m';
@@ -107,7 +107,6 @@ module.exports = class Logger {
         } else {
             console.log((color ? color + levelName : levelName));
             console.log(message);
-            console.log('\x1b[0m');
 
             message = JSON.stringify(message);
         }
