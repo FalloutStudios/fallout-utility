@@ -108,7 +108,12 @@ module.exports = class Logger {
             console.log((color ? color + levelName : levelName));
             console.log(message);
 
-            message = JSON.stringify(message);
+            // convert instance of errors to string
+            if(message instanceof Error) {
+                message = message.stack;
+            } else if(typeof message == 'object') {
+                message = JSON.stringify(message);
+            }
         }
 
         if(this.writeStream) {
