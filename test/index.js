@@ -1,6 +1,6 @@
 const Util = require('../index.js');
 
-const log = new Util.Logger('test');
+const log = new Util.Logger('test').logFile('./logs/test.log');
 log.log('Fallout util v' + Util.version);
 log.error('Fallout util v' + Util.version);
 log.warn('Fallout util v' + Util.version);
