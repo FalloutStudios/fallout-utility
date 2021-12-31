@@ -17,7 +17,6 @@ module.exports = {
     /**
      * Deprecated
      * */
-    ask: require('./scripts/ask.js'),
     makeSentence: require('./scripts/makeSentence.js'),
 
     detectCommand: require('./scripts/detectCommand.js'),
