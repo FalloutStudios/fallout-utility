@@ -31,9 +31,9 @@
 
     let response = undefined;
     while (true) {
-        if(response || !repeat || (exitStrings && exitStrings.includes(response))) break;
-
         response = Prompt(text, (echo === null ? null : { echo: echo }));
+        
+        if(response || !response && !repeat || exitStrings && exitStrings.includes(response)) break;
     }
 
     return response;
