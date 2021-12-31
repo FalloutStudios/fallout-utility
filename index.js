@@ -14,16 +14,21 @@ const modulesDir = Fs.readdirSync(__dirname + '/scripts/').filter(file => file.e
 
 
 module.exports = {
+    /**
+     * Deprecated
+     * */
     ask: require('./scripts/ask.js'),
+    makeSentence: require('./scripts/makeSentence.js'),
+
     detectCommand: require('./scripts/detectCommand.js'),
     escapeRegExp: require('./scripts/escapeRegExp.js'),
     getCommand: require('./scripts/getCommand.js'),
     getRandomKey: require('./scripts/getRandomKey.js'),
+    input: require('./scripts/input.js'),
     isNumber: require('./scripts/isNumber.js'),
     limitText: require('./scripts/limitText.js'),
     Logger: require('./scripts/Logger.js'),
     loopString: require('./scripts/loopString.js'),
-    makeSentence: require('./scripts/makeSentence.js'),
     randomInt: require('./scripts/randomInt.js'),
     replaceAll: require('./scripts/replaceAll.js'),
     splitString: require('./scripts/splitString.js'),
