@@ -26,7 +26,7 @@
     const exitStrings = prompt?.exitStrings;
 
     if (typeof text !== 'string') throw new Error('text must be a string');
-    if (typeof repeat !== 'boolean') throw new Error('repeat must be a boolean');
+    if (repeat && typeof repeat !== 'boolean') throw new Error('repeat must be a boolean');
     if (exitStrings && !Array.isArray(exitStrings)) throw new Error('exitStrings must be an array');
 
     let response = undefined;
