@@ -50,7 +50,6 @@ module.exports = class Logger {
     /**
      * 
      * @param {string} log - Parsed log
-     * @returns 
      */
     parseLogHeader(log) {
         return log.split('\n').filter(line => line.startsWith('[LOG HEADER]'));
@@ -66,7 +65,6 @@ module.exports = class Logger {
      * @param {string} message - Message to log
      * @param {string} prefix - Log message prefix
      * @param {int} level - Log level
-     * @returns 
      */
     _parseMessage(message, prefix = null, level = 0){
         if(typeof message == 'string') { 
@@ -80,6 +78,15 @@ module.exports = class Logger {
         this._writeLog(message, prefix, level);
     }
 
+    /**
+     * 
+     * @param {string} message - Message to log
+     * @param {string} [prefix=null] - Log message prefix
+     * @param {string} [level=0] - Log level
+     * @param {string} [level=0] - 0: info
+     * @param {string} [level=1] - 1: warn
+     * @param {string} [level=2] - 2: error
+     */
     _writeLog(message, prefix = null, level = 0) {
         if(level < 0 || level > 2) throw new TypeError("Invalid level number");
     

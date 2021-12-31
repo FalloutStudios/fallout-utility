@@ -13,14 +13,19 @@ const Path = require("path");
 const modulesDir = Fs.readdirSync(__dirname + '/scripts/').filter(file => file.endsWith('.js'));
 
 
-module.exports = new Create();
-
-function Create() {
-    for (const file of modulesDir) {
-        let name = Path.parse(file).name;
-        
-        
-        let requireModule = require(__dirname + '/scripts/' + file);
-        this[name] = requireModule;
-    }
-}
+module.exports = {
+    ask: require('./scripts/ask.js'),
+    detectCommand: require('./scripts/detectCommand.js'),
+    escapeRegExp: require('./scripts/escapeRegExp.js'),
+    getCommand: require('./scripts/getCommand.js'),
+    getRandomKey: require('./scripts/getRandomKey.js'),
+    isNumber: require('./scripts/isNumber.js'),
+    limitText: require('./scripts/limitText.js'),
+    Logger: require('./scripts/Logger.js'),
+    loopString: require('./scripts/loopString.js'),
+    makeSentence: require('./scripts/makeSentence.js'),
+    randomInt: require('./scripts/randomInt.js'),
+    replaceAll: require('./scripts/replaceAll.js'),
+    splitString: require('./scripts/splitString.js'),
+    version: require('./scripts/version.js'),
+};
