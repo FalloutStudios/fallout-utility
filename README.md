@@ -28,7 +28,7 @@ log.log("Your name is " + question);
 ```
 
 ```yml
-1: [INFO] Fallout util v1.2.6
+1: [INFO] Fallout util v1.2.7
 2: What is your name? AMOGUS
 3: [INFO] Your name is AMOGUS
 ```
