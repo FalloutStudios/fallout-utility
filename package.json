@@ -22,7 +22,6 @@
     "test": "node ./test/index.js"
   },
   "dependencies": {
-    "prompt-sync": "^4.1.6",
-    "strip-ansi": "^7.0.1"
+    "prompt-sync": "4.1.6"
   }
 }
