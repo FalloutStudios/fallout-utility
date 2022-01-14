@@ -12,7 +12,7 @@
  module.exports = (prompt = { text: '', echo: null, repeat: true, sigint: true, eot: false, exitStrings: ['stop', 'exit'] }) => {
     if(typeof prompt === 'string') {
         prompt = { text: prompt, echo: null, repeat: true, exitStrings: ['stop', 'exit'] };
-        process.emitWarning('Passing string to ask() is deprecated. Please pass an object instead.');
+        process.emitWarning('Passing string to input() is deprecated. Please pass an object instead.', 'DeprecationWarning');
     }
 
     const Prompt = require('prompt-sync')({
@@ -29,7 +29,7 @@
     if (repeat && typeof repeat !== 'boolean') throw new Error('repeat must be a boolean');
     if (exitStrings && !Array.isArray(exitStrings)) throw new Error('exitStrings must be an array');
 
-    let response = undefined;
+    let response = null;
     while (true) {
         response = Prompt(text, (echo === null ? null : { echo: echo }));
         
