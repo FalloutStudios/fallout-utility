@@ -23,7 +23,7 @@ export function input (prompt: string | PromptOptions = ''): any {
     });
 
     const text = prompt?.text || '';
-    const echo = prompt?.echo || '*';
+    const echo = prompt?.echo || null;
     const repeatIfEmpty = prompt?.repeatIfEmpty || prompt?.repeat || false;
     const exitStrings = prompt?.exitStrings || [];
 

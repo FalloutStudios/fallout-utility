@@ -17,7 +17,6 @@ Logger.log(Util.replaceAll('Replace', ['e','c'], ['i','o']));
 setTimeout(() => {
     const e = Util.input({
         text: 'Input: ',
-        echo: '*',
         repeatIfEmpty: false,
         exitStrings: ['exit', 'quit'],
         sigint: true,
