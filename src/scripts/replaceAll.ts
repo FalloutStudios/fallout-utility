@@ -1,5 +1,11 @@
 import { default as chalk } from 'chalk';
 
+/**
+ * Find and replace characters in a string
+ * @param str Original string
+ * @param find Strings to find
+ * @param replace Replacement strings
+ */
 export function replaceAll (str: string, find: string | string[], replace: string | string[]): string {
     if (typeof find === 'string') find = [find];
     if (typeof replace === 'string') replace = [replace];

@@ -33,5 +33,6 @@ Logger.log(Util.splitString('Hello World, "e e e e "  e e e, "e , e, e"', true, 
 Logger.log(Util.getRandomKey([1,2,3,4,5,6,7,8,9,10]));
 Logger.log(Util.detectCommand('/Hello World', '/'));
 Logger.log(Util.getCommand('/Hello', '/'));
+Logger.log(Util.getOperatingSystem());
 
 Logger.log(Util.version);

@@ -9,6 +9,10 @@ interface Command {
     separator?: string;
 }
 
+/**
+ * 
+ * Returns the command and arguments from a string
+ */
 export function getCommand (string: string, prefix: string, separator: string = ' '): Command {
     const command: Command = {
         command: undefined,

@@ -3,20 +3,50 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 interface OptionsPrexisInsterface {
+    /**
+     * Prefix to add to the log messages
+     */
     enabled: boolean;
+    /**
+     * First bracket char
+     */
     startBracket: string;
+    /**
+     * End bracket char
+     */
     endBracket: string;
+    /**
+     * Prefix and level strings separator
+     */
     separator: string;
+    /**
+     * Level names
+     */
     levels: string[];
+    /**
+     * Level colors
+     */
     colors: string[];
 }
 
 interface OptionsInterface {
+    /**
+     * Log messages prefix options
+     */
     prefix?: OptionsPrexisInsterface;
+    /**
+     * Stringify objects when printing to console
+     */
     stringifyJSON?: boolean;
+    /**
+     * Custom write stream
+     */
     writeStream?: fs.WriteStream;
 }
 
+/**
+ * Levels
+ */
 type LevelNumbers = 0 | 1 | 2;
 
 export class Logger {
@@ -42,6 +72,10 @@ export class Logger {
         this.writeStream = options?.writeStream || undefined;
     }
 
+    /**
+     * 
+     * Log to file
+     */
     logFile(logFilePath: string, overwriteOldFile: boolean = false): Logger {
         if(!logFilePath) throw new TypeError("Log file path is not defined");
 
@@ -67,6 +101,10 @@ export class Logger {
         return this;
     }
 
+    /**
+     * 
+     * Remove write stream
+     */
     stopLogWriteStream(): Logger {
         if(!this.writeStream) return this;
         
@@ -80,9 +118,25 @@ export class Logger {
         return log.split('\n').filter(line => line.startsWith('[LOG HEADER]'));
     }
 
+    /**
+     * 
+     * Print message to console
+     */
     log (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
+    /**
+     * 
+     * Print message to console
+     */
     info (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
+    /**
+     * 
+     * Print warn message to console
+     */
     warn (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 1); }
+    /**
+     * 
+     * Print error message to console
+     */
     error (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 2); }
 
     private parseLogMessage (message: any, setPrefix: string = this.defaultPrefix, level: LevelNumbers = 0): void {

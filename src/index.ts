@@ -8,4 +8,5 @@ export * from './scripts/splitString';
 export * from './scripts/getRandomKey';
 export * from './scripts/detectCommand';
 export * from './scripts/getCommand';
+export * from './scripts/getOperatingSystem';
 export * from './scripts/version';

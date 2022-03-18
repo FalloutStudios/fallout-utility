@@ -8,6 +8,10 @@ interface PromptOptions {
     exitStrings?: string[];
 }
 
+/**
+ * 
+ * Prompts the user for input
+ */
 export function input (prompt: string | PromptOptions = ''): any {
     if (typeof prompt === 'string') {
         prompt = { text: prompt };

@@ -1,3 +1,7 @@
+/**
+ * 
+ * Detects the string if has the given prefixes
+ */
 export function detectCommand (string: string, commandPrefix: string| string[]) {
     if (!string || !commandPrefix) return false;
     
