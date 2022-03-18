@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -23,7 +23,7 @@
     "compile": "rimraf dist && tsc",
     "test:run": "node ./dist/test/index.js",
     "test:compile": "npm run compile && npm run test:run",
-    "publish": "npm run compile && npm install && npm publish"
+    "publish": "npm run compile && npm install && sleep 1 && npm publish"
   },
   "dependencies": {
     "@types/prompt-sync": "^4.1.1",
