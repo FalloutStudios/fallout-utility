@@ -1,4 +1,5 @@
 import { escapeRegExp } from './escapeRegExp';
+import { trimChars } from "./trimChar";
 
 /**
  * Split a string into an array of strings
@@ -15,7 +16,7 @@ export function splitString (str: string, removeQuotations: boolean = false, sep
     let newText = [];
     for (let word of matches) {
         word = word.replace(/(?:\\(.))/, '$1');
-        word = removeQuotations && word.startsWith('"') && word.endsWith('"') ? word.replace(/(^\"+|\"+$)/g, '') : word;
+        word = removeQuotations && word.startsWith('"') && word.endsWith('"') ? trimChars(word, '"') : word;
 
         newText.push(word);
     }

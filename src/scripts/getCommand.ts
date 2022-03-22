@@ -24,8 +24,10 @@ export function getCommand (string: string, prefix: string, separator: string = 
 
     if (!detectCommand(string, prefix)) return command;
 
-    command.args = splitString(string.slice(prefix.length).toString().trim(), true, separator);
-    command.command = command.args.shift()?.toLowerCase().trim();
+    command.command = string.slice(prefix.length).trim().split(' ')[0];
+
+    const args = string.slice(prefix.length).trim().split(' ').splice(1).join(' ');
+    command.args = args ? splitString(args, true, separator) : [];
 
     return command;
 }
