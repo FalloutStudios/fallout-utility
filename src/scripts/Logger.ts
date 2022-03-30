@@ -1,6 +1,7 @@
 import { default as chalk } from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
+import { replaceAll } from './replaceAll';
 
 interface OptionsPrexisInsterface {
     /**
@@ -38,6 +39,10 @@ interface OptionsInterface {
      * Stringify objects when printing to console
      */
     stringifyJSON?: boolean;
+    /**
+     * Adds log prefix to JSON new lines (\n) in the log file
+     */
+    addPrefixToEveryJsonNewLines?: boolean;
     /**
      * Custom write stream
      */
@@ -81,18 +86,19 @@ export class Logger {
 
         const dir = path.dirname(logFilePath);
         const file = path.basename(logFilePath);
-        const header = `[LOG HEADER] ${new Date().toJSON()}\n[LOG] Original file: ${file}\n[LOG] Original path: ${dir}\n`;
+        const header = `[LOG HEADER] ${replaceAll(new Date().toJSON(), ':', '-')}\n[LOG] Original file: ${file}\n[LOG] Original path: ${dir}\n`;
 
         let overwriten = false;
         if(fs.existsSync(logFilePath)) {
             if (!overwriteOldFile) {
                 const fileInfo = path.parse(file);
                 const headerInfo = this.parseLogHeader(fs.readFileSync(logFilePath, 'utf8')).map(line => line.replace('[LOG HEADER] ', ''));
-                fs.renameSync(logFilePath, path.join(dir, `${headerInfo[0] || new Date().toJSON() + '-1'}${fileInfo.ext}`));
+                fs.renameSync(logFilePath, path.join(dir, `${headerInfo[0] || replaceAll(new Date().toJSON(), ':', '-') + '-1'}${fileInfo.ext}`));
                 overwriten = true;
             }
         } else {
             fs.mkdirSync(dir, { recursive: true });
+            overwriten = true;
         }
 
         this.writeStream = fs.createWriteStream(logFilePath);
@@ -158,19 +164,30 @@ export class Logger {
 
         if (typeof message === 'string' || typeof message === 'number') {
             console.log(consolePrefix, `${message}`, '\x1b[0m');
+            this.writeToStream(`${message}`, consolePrefixText);
         } else if (typeof message === 'object' && this.options.stringifyJSON) {
             this.parseLogMessage(JSON.stringify(message, null, 2), prefix, level);
             return;
+        } else if (typeof message === 'object') {
+            console.log(consolePrefix, '\x1b[0m');
+            console.log(message);
+            console.log('\x1b[0m');
+
+            const json = JSON.stringify(message, null, 2);
+            if (this.options.addPrefixToEveryJsonNewLines) {
+                json.split('\n').forEach(line => this.writeToStream(line, consolePrefixText));
+            } else {
+                this.writeToStream(`\n${json}`, consolePrefixText);
+            }
         } else if (message instanceof Error) {
             console.log(consolePrefix, `${message.stack}`, '\x1b[0m');
+            this.writeToStream(`${message.stack}`, consolePrefixText);
         } else {
             console.log(consolePrefix, '\x1b[0m');
             console.log(message);
             console.log('\x1b[0m');
-        }
 
-        if (this.writeStream) {
-            this.writeStream.write(`${consolePrefixText} ${message}\n`, 'utf-8');
+            this.writeToStream(message, consolePrefixText);
         }
     }
 
@@ -181,5 +198,12 @@ export class Logger {
         const color = this.options.prefix?.colors[level] || (['', '\x1b[33m', '\x1b[31m'])[level];
 
         return (colors ? color : '') + `${ this.options.prefix?.startBracket || '[' }${levelPrefix}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
+    }
+
+    private writeToStream(message: string, prefix: string): Logger {
+        if (!this.writeStream) return this;
+        this.writeStream.write(`${prefix} ${message}\n`, 'utf-8');
+        
+        return this;
     }
 }
