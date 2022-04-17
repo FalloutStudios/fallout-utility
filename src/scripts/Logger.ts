@@ -24,10 +24,6 @@ interface OptionsPrexisInsterface {
      * Level names
      */
     levels: string[];
-    /**
-     * Level colors
-     */
-    colors: string[];
 }
 
 interface OptionsInterface {
@@ -64,8 +60,7 @@ export class Logger {
             startBracket: '[',
             endBracket: ']',
             separator: ' - ',
-            levels: ['INFO', 'WARN', 'ERROR'],
-            colors: ['', '\x1b[33m', '\x1b[31m']
+            levels: ['INFO', 'WARN', 'ERROR']
         },
     };
     public defaultPrefix: string;
@@ -104,6 +99,15 @@ export class Logger {
         this.writeStream = fs.createWriteStream(logFilePath);
         if (overwriten) this.writeStream.write(header);
         
+        return this;
+    }
+
+    /**
+     * 
+     * Sets the current write stream
+     */
+    setWriteStream(writeStream: fs.WriteStream): Logger {
+        this.writeStream = writeStream;
         return this;
     }
 
@@ -163,15 +167,25 @@ export class Logger {
         const consolePrefixText = this.getPrefix(prefix, level, false);
 
         if (typeof message === 'string' || typeof message === 'number') {
-            console.log(consolePrefix, `${message}`, '\x1b[0m');
+            console.log(consolePrefix, this.colorize(`${message}`, level));
             this.writeToStream(`${message}`, consolePrefixText);
+        } else if (message instanceof Error) {
+            console.log(consolePrefix, message);
+            
+            const stack = message.stack?.split('\n');
+            if (!stack) return;
+
+            if (this.options.addPrefixToEveryJsonNewLines) {
+                stack.forEach(line => this.writeToStream(line, consolePrefixText));
+            } else {
+                this.writeToStream(`\n${stack.join('\n')}`, consolePrefixText);
+            }
         } else if (typeof message === 'object' && this.options.stringifyJSON) {
             this.parseLogMessage(JSON.stringify(message, null, 2), prefix, level);
             return;
         } else if (typeof message === 'object') {
-            console.log(consolePrefix, '\x1b[0m');
+            console.log(consolePrefix);
             console.log(message);
-            console.log('\x1b[0m');
 
             const json = JSON.stringify(message, null, 2);
             if (this.options.addPrefixToEveryJsonNewLines) {
@@ -179,13 +193,9 @@ export class Logger {
             } else {
                 this.writeToStream(`\n${json}`, consolePrefixText);
             }
-        } else if (message instanceof Error) {
-            console.log(consolePrefix, `${message.stack}`, '\x1b[0m');
-            this.writeToStream(`${message.stack}`, consolePrefixText);
         } else {
-            console.log(consolePrefix, '\x1b[0m');
+            console.log(consolePrefix);
             console.log(message);
-            console.log('\x1b[0m');
 
             this.writeToStream(message, consolePrefixText);
         }
@@ -195,15 +205,25 @@ export class Logger {
         if (this.options.prefix?.enabled === false) return '';
 
         const levelPrefix = this.options.prefix?.levels[level] || (['INFO', 'WARN', 'ERROR'])[level];
-        const color = this.options.prefix?.colors[level] || (['', '\x1b[33m', '\x1b[31m'])[level];
 
-        return (colors ? color : '') + `${ this.options.prefix?.startBracket || '[' }${levelPrefix}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
+        const string = `${ this.options.prefix?.startBracket || '[' }${levelPrefix}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
+        if (!colors) return string;
+
+        return this.colorize(string, level);
     }
 
     private writeToStream(message: string, prefix: string): Logger {
         if (!this.writeStream) return this;
-        this.writeStream.write(`${prefix} ${message}\n`, 'utf-8');
+        this.writeStream.write(`${prefix} ${message}`, 'utf-8');
         
         return this;
+    }
+
+    private colorize(string: string, level: LevelNumbers): string {
+        switch (level) {
+            case 0: return string;
+            case 1: return chalk.yellow(string);
+            case 2: return chalk.red(string);
+        }
     }
 }
