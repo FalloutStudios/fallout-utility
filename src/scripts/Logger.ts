@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { replaceAll } from './replaceAll';
 
-interface OptionsPrexisInsterface {
+export interface OptionsPrexisInsterface {
     /**
      * Prefix to add to the log messages
      */
@@ -26,7 +26,7 @@ interface OptionsPrexisInsterface {
     levels: string[];
 }
 
-interface OptionsInterface {
+export interface OptionsInterface {
     /**
      * Log messages prefix options
      */
@@ -48,7 +48,7 @@ interface OptionsInterface {
 /**
  * Levels
  */
-type LevelNumbers = 0 | 1 | 2;
+export type LevelNumbers = 0 | 1 | 2;
 
 export class Logger {
 
@@ -109,6 +109,17 @@ export class Logger {
     setWriteStream(writeStream: fs.WriteStream): Logger {
         this.writeStream = writeStream;
         return this;
+    }
+
+    /**
+     * 
+     * Creates new logger
+     */
+    cloneLogger(): Logger {
+        const logger = new Logger(this.defaultPrefix, this.options);
+
+        logger.writeStream = this.writeStream;
+        return logger;
     }
 
     /**

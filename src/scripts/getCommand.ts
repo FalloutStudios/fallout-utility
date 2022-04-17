@@ -1,7 +1,7 @@
 import { detectCommand } from "./detectCommand";
 import { splitString } from "./splitString";
 
-interface Command {
+export interface Command {
     command?: string;
     args?: string[];
     raw?: string;

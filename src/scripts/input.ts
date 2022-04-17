@@ -1,4 +1,4 @@
-interface PromptOptions {
+export interface PromptOptions {
     text?: string|Buffer|Uint8Array;
     echo?: string;
     repeatIfEmpty?: boolean;
