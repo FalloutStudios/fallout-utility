@@ -1,6 +1,6 @@
 import * as Util from '../';
 
-const Logger = new Util.Logger('Main', {
+const Logger = new Util.Logger(undefined, {
     stringifyJSON: false,
     addPrefixToEveryJsonNewLines: true
 }).logFile('./logs/log.txt');
@@ -25,7 +25,6 @@ setTimeout(() => {
     Logger.log(e);
 },1000);
 
-Logger.log(Util.loopString(10, '*'));
 Logger.log(Util.randomInt(10, 20));
 Logger.log(Util.limitText('Hello World', 5));
 Logger.log(Util.splitString('Hello World, "e e e e "  e e e, "e , e, e"', true));
@@ -37,3 +36,5 @@ Logger.warn(Util.getOperatingSystem());
 Logger.error(new Error('error'));
 
 Logger.log(Util.version);
+Logger.log(Logger.debugging ? 'Debugging' : 'Debugging is disabled');
+Logger.debug('Debugging');
