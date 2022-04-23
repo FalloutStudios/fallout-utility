@@ -49,6 +49,11 @@ export interface OptionsInterface {
      * Set debug mode
      */
     setDebugging?: boolean;
+
+    /**
+     * Colorize logged string
+     */
+    colorizeStringLog?: boolean;
 }
 
 /**
@@ -62,6 +67,7 @@ export class Logger {
         stringifyJSON: false,
         writeStream: undefined,
         setDebugging: undefined,
+        colorizeStringLog: true,
         prefix: {
             enabled: true,
             startBracket: '[',
@@ -201,7 +207,7 @@ export class Logger {
         const consolePrefixText = this.getPrefix(prefix, level, false);
 
         if (typeof message === 'string' || typeof message === 'number') {
-            console.log(consolePrefix, `${message}`);
+            console.log(consolePrefix, this.options.colorizeStringLog ? this.colorize(`${message}`, level) : message);
             this.writeToStream(`${message}`, consolePrefixText);
         } else if (message instanceof Error) {
             console.log(consolePrefix, message);
@@ -239,13 +245,20 @@ export class Logger {
         if (this.options.prefix?.enabled === false) return '';
 
         const levelPrefix = this.options.prefix?.levels[level] || (['INFO', 'WARN', 'ERROR', 'DEBUG'])[level];
+        const logPrefix = colors ? chalk.bold(this.colorize(levelPrefix, level)) : levelPrefix;
+        const separator = colors ? chalk.gray(this.options.prefix?.separator || ' - ') : this.options.prefix?.separator || ' - ';
+        const mainPrefix = colors ? chalk.bold(this.colorize(prefix ?? '', level)) : prefix ?? '';
+        const brackets = [
+            this.options.prefix?.startBracket || '[',
+            this.options.prefix?.endBracket || ']'
+        ];
 
-        return `${ this.options.prefix?.startBracket || '[' }${!colors ? levelPrefix : chalk.bold(this.colorize(levelPrefix, level))}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
+        return `${brackets[0]}${logPrefix}${ separator }${mainPrefix}${brackets[1]}`;
     }
 
     private writeToStream(message: string, prefix: string): Logger {
         if (!this.writeStream) return this;
-        this.writeStream.write(`${prefix} ${message}`, 'utf-8');
+        this.writeStream.write(`${prefix} ${message.toString().trimEnd()}\n`, 'utf-8');
         
         return this;
     }

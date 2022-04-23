@@ -5,6 +5,8 @@ const Logger = new Util.Logger(undefined, {
     addPrefixToEveryJsonNewLines: true
 }).logFile('./logs/log.txt');
 
+Logger.defaultPrefix = 'Logger';
+
 Logger.log(Util);
 
 Logger.log('Hello World');
@@ -38,3 +40,9 @@ Logger.error(new Error('error'));
 Logger.log(Util.version);
 Logger.log(Logger.debugging ? 'Debugging' : 'Debugging is disabled');
 Logger.debug('Debugging');
+
+const cloneLogger = Logger.cloneLogger();
+    cloneLogger.defaultPrefix = 'Clone';
+
+cloneLogger.log('Hello World');
+cloneLogger.info('Hello World');
