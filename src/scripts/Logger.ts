@@ -207,7 +207,7 @@ export class Logger {
         const consolePrefixText = this.getPrefix(prefix, level, false);
 
         if (typeof message === 'string' || typeof message === 'number') {
-            console.log(consolePrefix, this.options.colorizeStringLog ? this.colorize(`${message}`, level) : message);
+            console.log(consolePrefix, this.options.colorizeStringLog || this.options.colorizeStringLog === undefined ? this.colorize(`${message}`, level) : `${message}`);
             this.writeToStream(`${message}`, consolePrefixText);
         } else if (message instanceof Error) {
             console.log(consolePrefix, message);

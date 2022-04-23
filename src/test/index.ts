@@ -46,3 +46,6 @@ const cloneLogger = Logger.cloneLogger();
 
 cloneLogger.log('Hello World');
 cloneLogger.info('Hello World');
+cloneLogger.warn('Hello World');
+cloneLogger.error('e');
+cloneLogger.debug('Secret debug message');
