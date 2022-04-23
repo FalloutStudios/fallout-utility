@@ -2,8 +2,9 @@ import { default as chalk } from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
 import { replaceAll } from './replaceAll';
+import inspector from 'inspector';
 
-export interface OptionsPrexisInsterface {
+export interface OptionsPrefixInsterface {
     /**
      * Prefix to add to the log messages
      */
@@ -30,7 +31,7 @@ export interface OptionsInterface {
     /**
      * Log messages prefix options
      */
-    prefix?: OptionsPrexisInsterface;
+    prefix?: OptionsPrefixInsterface;
     /**
      * Stringify objects when printing to console
      */
@@ -43,33 +44,42 @@ export interface OptionsInterface {
      * Custom write stream
      */
     writeStream?: fs.WriteStream;
+
+    /**
+     * Set debug mode
+     */
+    setDebugging?: boolean;
 }
 
 /**
  * Levels
  */
-export type LevelNumbers = 0 | 1 | 2;
+export type LevelNumbers = 0 | 1 | 2 | 3;
 
 export class Logger {
 
     public options: OptionsInterface = {
         stringifyJSON: false,
         writeStream: undefined,
+        setDebugging: undefined,
         prefix: {
             enabled: true,
             startBracket: '[',
             endBracket: ']',
             separator: ' - ',
-            levels: ['INFO', 'WARN', 'ERROR']
+            levels: ['INFO', 'WARN', 'ERROR', 'DEBUG']
         },
     };
-    public defaultPrefix: string;
+    public defaultPrefix?: string;
     public writeStream: fs.WriteStream | undefined;
+    public debugging: boolean = false;
 
-    constructor(defaultPrefix: string, options?: OptionsInterface) {
+    constructor(defaultPrefix?: string, options?: OptionsInterface) {
         this.options = options || this.options;
         this.defaultPrefix = defaultPrefix;
         this.writeStream = options?.writeStream || undefined;
+
+        this.debugging = options && options?.setDebugging !== undefined ? options?.setDebugging : Logger.isDebugging();
     }
 
     /**
@@ -119,7 +129,14 @@ export class Logger {
         const logger = new Logger(this.defaultPrefix, this.options);
 
         logger.writeStream = this.writeStream;
+        logger.debugging = this.debugging;
+
         return logger;
+    }
+
+    setDebugging(debugging: boolean): Logger {
+        this.debugging = !!debugging;
+        return this;
     }
 
     /**
@@ -143,24 +160,30 @@ export class Logger {
      * 
      * Print message to console
      */
-    log (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
+    log (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
     /**
      * 
      * Print message to console
      */
-    info (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
+    info (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
     /**
      * 
      * Print warn message to console
      */
-    warn (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 1); }
+    warn (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 1); }
     /**
      * 
      * Print error message to console
      */
-    error (args: any, setPrefix: string = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 2); }
+    error (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 2); }
 
-    private parseLogMessage (message: any, setPrefix: string = this.defaultPrefix, level: LevelNumbers = 0): void {
+    /**
+     * 
+     * Print a debug message to console only if the debug mode is enabled
+     */
+    debug (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.debugging ? this.parseLogMessage(args, setPrefix, 3) : undefined; }
+
+    private parseLogMessage (message: any, setPrefix: string|undefined = this.defaultPrefix, level: LevelNumbers = 0): void {
         if (typeof message === 'string') {
             message = message.split('\n');
             
@@ -173,12 +196,12 @@ export class Logger {
         this.writeLog(message, setPrefix, level);
     }
 
-    private writeLog (message: any, prefix: string = this.defaultPrefix, level: LevelNumbers = 0): void {
+    private writeLog (message: any, prefix: string|undefined = this.defaultPrefix, level: LevelNumbers = 0): void {
         const consolePrefix = this.getPrefix(prefix, level);
         const consolePrefixText = this.getPrefix(prefix, level, false);
 
         if (typeof message === 'string' || typeof message === 'number') {
-            console.log(consolePrefix, this.colorize(`${message}`, level));
+            console.log(consolePrefix, `${message}`);
             this.writeToStream(`${message}`, consolePrefixText);
         } else if (message instanceof Error) {
             console.log(consolePrefix, message);
@@ -212,15 +235,12 @@ export class Logger {
         }
     }
 
-    private getPrefix(prefix: string, level: LevelNumbers = 0, colors: boolean = true): string {
+    private getPrefix(prefix?: string, level: LevelNumbers = 0, colors: boolean = true): string {
         if (this.options.prefix?.enabled === false) return '';
 
-        const levelPrefix = this.options.prefix?.levels[level] || (['INFO', 'WARN', 'ERROR'])[level];
+        const levelPrefix = this.options.prefix?.levels[level] || (['INFO', 'WARN', 'ERROR', 'DEBUG'])[level];
 
-        const string = `${ this.options.prefix?.startBracket || '[' }${levelPrefix}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
-        if (!colors) return string;
-
-        return this.colorize(string, level);
+        return `${ this.options.prefix?.startBracket || '[' }${!colors ? levelPrefix : chalk.bold(this.colorize(levelPrefix, level))}`+ (prefix ? `${ this.options.prefix?.separator || ' - ' }${prefix}` : ``) + `${ this.options.prefix?.endBracket || ']' }`;
     }
 
     private writeToStream(message: string, prefix: string): Logger {
@@ -235,6 +255,11 @@ export class Logger {
             case 0: return string;
             case 1: return chalk.yellow(string);
             case 2: return chalk.red(string);
+            case 3: return chalk.blue(string);
         }
+    }
+
+    public static isDebugging(): boolean {
+        return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
     }
 }
