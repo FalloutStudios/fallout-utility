@@ -3,10 +3,10 @@ import { splitString } from "./splitString";
 
 export interface Command {
     command?: string;
-    args?: string[];
-    raw?: string;
-    prefix?: string;
-    separator?: string;
+    args: string[];
+    raw: string;
+    prefix: string;
+    separator: string;
 }
 
 /**
