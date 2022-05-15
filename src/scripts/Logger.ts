@@ -207,10 +207,10 @@ export class Logger {
         const consolePrefixText = this.getPrefix(prefix, level, false);
 
         if (typeof message === 'string' || typeof message === 'number') {
-            console.log(consolePrefix, this.options.colorizeStringLog || this.options.colorizeStringLog === undefined ? this.colorize(`${message}`, level) : `${message}`);
+            Logger.print(level, consolePrefix, this.options.colorizeStringLog || this.options.colorizeStringLog === undefined ? this.colorize(`${message}`, level) : `${message}`);
             this.writeToStream(`${message}`, consolePrefixText);
         } else if (message instanceof Error) {
-            console.log(consolePrefix, message);
+            Logger.print(level, consolePrefix, message);
             
             const stack = message.stack?.split('\n');
             if (!stack) return;
@@ -224,8 +224,8 @@ export class Logger {
             this.parseLogMessage(JSON.stringify(message, null, 2), prefix, level);
             return;
         } else if (typeof message === 'object') {
-            console.log(consolePrefix);
-            console.log(message);
+            Logger.print(level, consolePrefix);
+            Logger.print(level, message);
 
             const json = JSON.stringify(message, null, 2);
             if (this.options.addPrefixToEveryJsonNewLines) {
@@ -234,8 +234,8 @@ export class Logger {
                 this.writeToStream(`\n${json}`, consolePrefixText);
             }
         } else {
-            console.log(consolePrefix);
-            console.log(message);
+            Logger.print(level, consolePrefix);
+            Logger.print(level, message);
 
             this.writeToStream(message, consolePrefixText);
         }
@@ -274,5 +274,22 @@ export class Logger {
 
     public static isDebugging(): boolean {
         return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
+    }
+
+    private static print(level: number, ...args: any[]): void {
+        switch (level) {
+            case 0:
+                console.log(...args);
+                break;
+            case 1:
+                console.warn(...args);
+                break;
+            case 2:
+                console.error(...args);
+                break;
+            case 3:
+                console.debug(...args);
+                break;
+        }
     }
 }
