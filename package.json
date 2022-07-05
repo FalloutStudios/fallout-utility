@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.3.14",
+  "version": "1.4.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -20,10 +20,9 @@
     "url": "https://github.com/FalloutStudios/Fallout-utility/issues"
   },
   "scripts": {
-    "compile": "rimraf dist && tsc",
+    "build": "rm -rf dist dist && tsc",
     "test:run": "node ./dist/test/index.js",
-    "test:compile": "yarn run compile && yarn run test:run",
-    "build": "yarn run compile && yarn install && sleep 1 && yarn publish"
+    "test:build": "yarn run build && yarn run test:run"
   },
   "dependencies": {
     "@types/prompt-sync": "^4.1.1",

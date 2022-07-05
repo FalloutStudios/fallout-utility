@@ -7,7 +7,6 @@ export * from './scripts/input';
 export * from './scripts/isNumber';
 export * from './scripts/limitText';
 export * from './scripts/Logger';
-export * from './scripts/loopString';
 export * from './scripts/randomInt';
 export * from './scripts/replaceAll';
 export * from './scripts/splitString';

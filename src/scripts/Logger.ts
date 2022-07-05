@@ -1,295 +1,207 @@
-import { default as chalk } from 'chalk';
 import * as fs from 'fs';
+import chalk from 'chalk';
 import * as path from 'path';
-import { replaceAll } from './replaceAll';
 import inspector from 'inspector';
+import { replaceAll } from './replaceAll';
+import { trimChars } from './trimChar';
+import { isNumber } from './isNumber';
+import { Console } from 'console';
 
-export interface OptionsPrefixInsterface {
-    /**
-     * Prefix to add to the log messages
-     */
-    enabled: boolean;
-    /**
-     * First bracket char
-     */
-    startBracket: string;
-    /**
-     * End bracket char
-     */
-    endBracket: string;
-    /**
-     * Prefix and level strings separator
-     */
-    separator: string;
-    /**
-     * Level names
-     */
-    levels: string[];
-}
-
-export interface OptionsInterface {
-    /**
-     * Log messages prefix options
-     */
-    prefix?: OptionsPrefixInsterface;
-    /**
-     * Stringify objects when printing to console
-     */
+export interface LoggerOptions {
+    prefixes?: {
+        [level: number]: (loggerName?: string) => string;
+    },
+    colorMessages?: {
+        [level: number]: (message: string) => string;
+    },
     stringifyJSON?: boolean;
-    /**
-     * Adds log prefix to JSON new lines (\n) in the log file
-     */
-    addPrefixToEveryJsonNewLines?: boolean;
-    /**
-     * Custom write stream
-     */
+    addPrefixToAllNewLines?: boolean;
     writeStream?: fs.WriteStream;
-
-    /**
-     * Set debug mode
-     */
-    setDebugging?: boolean;
-
-    /**
-     * Colorize logged string
-     */
-    colorizeStringLog?: boolean;
+    enableDebugMode?: boolean;
 }
 
-/**
- * Levels
- */
-export type LevelNumbers = 0 | 1 | 2 | 3;
+export enum LogLevels {
+    INFO,
+    WARN, 
+    ERROR,
+    DEBUG
+}
 
 export class Logger {
-
-    public options: OptionsInterface = {
-        stringifyJSON: false,
-        writeStream: undefined,
-        setDebugging: undefined,
-        colorizeStringLog: true,
-        prefix: {
-            enabled: true,
-            startBracket: '[',
-            endBracket: ']',
-            separator: ' - ',
-            levels: ['INFO', 'WARN', 'ERROR', 'DEBUG']
+    public options: LoggerOptions = {
+        enableDebugMode: false,
+        addPrefixToAllNewLines: true,
+        prefixes: {
+            [LogLevels.INFO]: (loggerName) => chalk.bold(loggerName ? `${chalk.dim(loggerName)}${chalk.gray('/')}${'INFO'}` : 'INFO') + ' ',
+            [LogLevels.WARN]: (loggerName) => chalk.bold(loggerName ? `${chalk.yellow.dim(loggerName)}${chalk.gray('/')}${chalk.yellow('WARN')}` : 'WARN') + ' ',
+            [LogLevels.ERROR]: (loggerName) => chalk.bold(loggerName ? `${chalk.red.dim(loggerName)}${chalk.gray('/')}${chalk.red('ERROR')}` : 'ERROR') + ' ',
+            [LogLevels.DEBUG]: (loggerName) => chalk.bold(loggerName ? `${chalk.magenta.dim(loggerName)}${chalk.gray('/')}${chalk.magenta('DEBUG')}` : 'DEBUG' + ' ')
         },
+        colorMessages: {
+            [LogLevels.INFO]: (message: string) => message,
+            [LogLevels.WARN]: (message: string) => message,
+            [LogLevels.ERROR]: (message: string) => message,
+            [LogLevels.DEBUG]: (message: string) => message
+        },
+        stringifyJSON: true,
     };
-    public defaultPrefix?: string;
-    public writeStream: fs.WriteStream | undefined;
-    public debugging: boolean = false;
+    public loggerName?: string;
+    protected temporaryPrefix?: string;
+    public writeStream?: fs.WriteStream;
+    public enableDebugMode: boolean = false;
 
-    constructor(defaultPrefix?: string, options?: OptionsInterface) {
-        this.options = options || this.options;
-        this.defaultPrefix = defaultPrefix;
-        this.writeStream = options?.writeStream || undefined;
-
-        this.debugging = options && options?.setDebugging !== undefined ? options?.setDebugging : Logger.isDebugging();
+    constructor(options?: LoggerOptions & { loggerName?: string }) {
+        this.options = options ? {...this.options, ...options} : this.options;
+        this.loggerName = options?.loggerName ?? undefined;
+        this.writeStream = options?.writeStream ?? undefined;
+        this.enableDebugMode = options?.enableDebugMode ?? false;
     }
 
-    /**
-     * 
-     * Log to file
-     */
-    logFile(logFilePath: string, overwriteOldFile: boolean = false): Logger {
-        if(!logFilePath) throw new TypeError("Log file path is not defined");
+    public log(...message: any[]): void { this.parseLogMessage(message, LogLevels.INFO); }
+    public warn(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
+    public error(...message: any[]): void { this.parseLogMessage(message, LogLevels.ERROR); }
+    public debug(...message: any[]): void { if (this.enableDebugMode) this.parseLogMessage(message, LogLevels.DEBUG); }
 
-        const dir = path.dirname(logFilePath);
-        const file = path.basename(logFilePath);
-        const header = `[LOG HEADER] ${replaceAll(new Date().toJSON(), ':', '-')}\n[LOG] Original file: ${file}\n[LOG] Original path: ${dir}\n`;
+    public cloneLogger(options?: LoggerOptions & { loggerName?: string }): Logger {
+        const logger = new Logger({ ...this.options, loggerName: this.loggerName, ...(options ?? {}) });
 
-        let overwriten = false;
-        if(fs.existsSync(logFilePath)) {
-            if (!overwriteOldFile) {
-                const fileInfo = path.parse(file);
-                const headerInfo = this.parseLogHeader(fs.readFileSync(logFilePath, 'utf8')).map(line => line.replace('[LOG HEADER] ', ''));
-                fs.renameSync(logFilePath, path.join(dir, `${headerInfo[0] || replaceAll(new Date().toJSON(), ':', '-') + '-1'}${fileInfo.ext}`));
-                overwriten = true;
-            }
-        } else {
-            fs.mkdirSync(dir, { recursive: true });
-            overwriten = true;
-        }
-
-        this.writeStream = fs.createWriteStream(logFilePath);
-        if (overwriten) this.writeStream.write(header);
-        
-        return this;
-    }
-
-    /**
-     * 
-     * Sets the current write stream
-     */
-    setWriteStream(writeStream: fs.WriteStream): Logger {
-        this.writeStream = writeStream;
-        return this;
-    }
-
-    /**
-     * 
-     * Creates new logger
-     */
-    cloneLogger(): Logger {
-        const logger = new Logger(this.defaultPrefix, this.options);
-
-        logger.writeStream = this.writeStream;
-        logger.debugging = this.debugging;
+        logger.writeStream = options?.writeStream || this.writeStream;
+        logger.enableDebugMode = options?.enableDebugMode || this.enableDebugMode;
 
         return logger;
     }
 
-    setDebugging(debugging: boolean): Logger {
-        this.debugging = !!debugging;
+    public logFile(fileName: string, overwriteOldFile: boolean = false): Logger {
+        if(!fileName) throw new TypeError("Log file path is not defined");
+
+        const dir = path.dirname(fileName);
+        const file = path.basename(fileName);
+
+        let writeHeader = false;
+        fs.mkdirSync(dir, { recursive: true });
+
+        if(fs.existsSync(fileName) && !overwriteOldFile) {
+            const header = this.parseLogHeader(fileName);
+            if (header) {
+                const date = `${header.date.toDateString()} - ${header.date.getHours()}-${header.date.getMinutes()}-${header.date.getSeconds()}-${header.date.getMilliseconds()}`;
+                fs.renameSync(fileName, `${date}${path.extname(file) ?? '.log'}`);
+            } else {
+                fs.rmSync(fileName, { recursive: true, force: true });
+            }
+
+            writeHeader = true;
+        }
+
+        this.writeStream = fs.createWriteStream(fileName);
+        if (writeHeader) this.writeStream.write(this.createLogHeader(file));
+
         return this;
     }
 
-    /**
-     * 
-     * Remove write stream
-     */
-    stopLogWriteStream(): Logger {
-        if(!this.writeStream) return this;
+    public setWriteStream(writeStream: fs.WriteStream): void {
+        this.writeStream = writeStream;
+    }
+
+    public stopLogWriteStream(): void {
+        if(!this.writeStream || this.writeStream.destroyed) return;
         
         this.writeStream.end();
         this.writeStream = undefined;
-
-        return this;
     }
 
-    private parseLogHeader(log: string): string[] {
-        return log.split('\n').filter(line => line.startsWith('[LOG HEADER]'));
+    public setEnableDebugMode(enable: boolean): void {
+        this.enableDebugMode = !!enable;
     }
 
-    /**
-     * 
-     * Print message to console
-     */
-    log (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
-    /**
-     * 
-     * Print message to console
-     */
-    info (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 0); }
-    /**
-     * 
-     * Print warn message to console
-     */
-    warn (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 1); }
-    /**
-     * 
-     * Print error message to console
-     */
-    error (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.parseLogMessage(args, setPrefix, 2); }
+    private parseLogHeader(file: string): { date: Date, file: string }|undefined {
+        if (!file) throw new TypeError('file is not defined');
+        if (!fs.existsSync(file)) throw new TypeError('file does not exists');
 
-    /**
-     * 
-     * Print a debug message to console only if the debug mode is enabled
-     */
-    debug (args: any, setPrefix: string|undefined = this.defaultPrefix): void { return this.debugging ? this.parseLogMessage(args, setPrefix, 3) : undefined; }
+        let log: string|string[] = fs.readFileSync(file, 'utf-8');
+            log = log.split(`=`.repeat(20))[0] ?? '';
 
-    private parseLogMessage (message: any, setPrefix: string|undefined = this.defaultPrefix, level: LevelNumbers = 0): void {
-        if (typeof message === 'string') {
-            message = message.split('\n');
-            
-            for (let value of message) {
-                this.writeLog(value, setPrefix, level);
-            }
-            return;
-        }
+        if (!log) return undefined;
 
-        this.writeLog(message, setPrefix, level);
-    }
-
-    private writeLog (message: any, prefix: string|undefined = this.defaultPrefix, level: LevelNumbers = 0): void {
-        const consolePrefix = this.getPrefix(prefix, level);
-        const consolePrefixText = this.getPrefix(prefix, level, false);
-
-        if (typeof message === 'string' || typeof message === 'number') {
-            Logger.print(level, consolePrefix, this.options.colorizeStringLog || this.options.colorizeStringLog === undefined ? this.colorize(`${message}`, level) : `${message}`);
-            this.writeToStream(`${message}`, consolePrefixText);
-        } else if (message instanceof Error) {
-            Logger.print(level, consolePrefix, message);
-            
-            const stack = message.stack?.split('\n');
-            if (!stack) return;
-
-            if (this.options.addPrefixToEveryJsonNewLines) {
-                stack.forEach(line => this.writeToStream(line, consolePrefixText));
-            } else {
-                this.writeToStream(`\n${stack.join('\n')}`, consolePrefixText);
-            }
-        } else if (typeof message === 'object' && this.options.stringifyJSON) {
-            this.parseLogMessage(JSON.stringify(message, null, 2), prefix, level);
-            return;
-        } else if (typeof message === 'object') {
-            Logger.print(level, consolePrefix);
-            Logger.print(level, message);
-
-            const json = JSON.stringify(message, null, 2);
-            if (this.options.addPrefixToEveryJsonNewLines) {
-                json.split('\n').forEach(line => this.writeToStream(line, consolePrefixText));
-            } else {
-                this.writeToStream(`\n${json}`, consolePrefixText);
-            }
-        } else {
-            Logger.print(level, consolePrefix);
-            Logger.print(level, message);
-
-            this.writeToStream(message, consolePrefixText);
-        }
-    }
-
-    private getPrefix(prefix?: string, level: LevelNumbers = 0, colors: boolean = true): string {
-        if (this.options.prefix?.enabled === false) return '';
-
-        const levelPrefix = this.options.prefix?.levels[level] || (['INFO', 'WARN', 'ERROR', 'DEBUG'])[level];
-        const logPrefix = colors ? chalk.bold(this.colorize(levelPrefix, level)) : levelPrefix;
-        const separator = colors ? chalk.gray(this.options.prefix?.separator || ' - ') : this.options.prefix?.separator || ' - ';
-        const mainPrefix = colors ? chalk.bold(this.colorize(prefix ?? '', level)) : prefix ?? '';
-        const brackets = [
-            this.options.prefix?.startBracket || '[',
-            this.options.prefix?.endBracket || ']'
-        ];
-
-        return `${brackets[0]}${logPrefix}${ separator }${mainPrefix}${brackets[1]}`;
-    }
-
-    private writeToStream(message: string, prefix: string): Logger {
-        if (!this.writeStream) return this;
-        this.writeStream.write(`${prefix} ${message.toString().trimEnd()}\n`, 'utf-8');
+        log = log.split('\n');
         
-        return this;
-    }
+        const time = (log[0].startsWith(`Time: `) ? trimChars(log[0], `Time: `) : null);
+        const originalFile = (log[0].startsWith(`File: `) ? trimChars(log[0], `File: `) : null) ?? file;
 
-    private colorize(string: string, level: LevelNumbers): string {
-        switch (level) {
-            case 0: return string;
-            case 1: return chalk.yellow(string);
-            case 2: return chalk.red(string);
-            case 3: return chalk.blue(string);
+        return {
+            date: new Date(isNumber(Number(time)) ? Number(time) : Date.now() - 1),
+            file: originalFile
         }
     }
 
-    public static isDebugging(): boolean {
-        return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
+    private createLogHeader(file: string): string {
+        if (!file) throw new TypeError('file is not defined');
+
+        return  `Time: ${new Date().getTime()}\n` +
+                `File: ${file}\n` +
+                `=`.repeat(20) +
+                `\n`
     }
 
-    private static print(level: number, ...args: any[]): void {
-        switch (level) {
-            case 0:
-                console.log(...args);
-                break;
-            case 1:
-                console.warn(...args);
-                break;
-            case 2:
-                console.error(...args);
-                break;
-            case 3:
-                console.debug(...args);
-                break;
+    private parseLogMessage(messages: any[], level: LogLevels): void {
+        for (const message of messages) {
+            if (typeof message == 'string') {
+                for (const line of message.split('\n')) {
+                    this.writeLog(line, level);
+                }
+
+                continue;
+            }
+
+            this.writeLog(message, level);
         }
+    }
+
+    private writeLog(message: any, level: LogLevels): void {
+        
+        if (['boolean', 'string', 'number', 'undefined'].includes(typeof message)) {
+            return this.print(`${String(message)}`, level);
+        } else if (message instanceof Error) {
+            if (!message.stack) return this.print(`${message.name}: ${message.message}`, level);
+            if (!this.options.addPrefixToAllNewLines) return this.print(`${message.stack}`, level);
+
+            return this.parseLogMessage(message.stack.split('\n'), level);
+        } else if (typeof message === 'object' && this.options.stringifyJSON) {
+            return this.parseLogMessage(JSON.stringify(message, null, 2).split('\n'), level);
+        } else if (typeof message === 'object') {
+            this.print(message, level, false, true);
+            this.print(`${JSON.stringify(message, null, 2)}`, level, true, false);
+        } else if (typeof message === 'function') {
+            this.print(`${message.toString()}`, level);
+        } else {
+            this.print(message, level, false);
+        }
+    }
+
+    private print(message: any, level: LogLevels = LogLevels.INFO, write: boolean = true, consoleLog: boolean = true): void {
+        let prefix: string|Function = this.options.prefixes![level];
+            prefix = prefix ? prefix(this.loggerName) : '';
+        let noColorPrefix = '';
+
+        if (consoleLog) {
+            const colorize = this.options.colorMessages![level];
+
+            switch (level) {
+                case LogLevels.INFO:
+                    console.log(prefix, colorize(message));
+                    break;
+                case LogLevels.WARN:
+                    console.warn(prefix, colorize(message));
+                    break;
+                case LogLevels.ERROR:
+                    console.error(prefix, colorize(message));
+                    break;
+                case LogLevels.DEBUG:
+                    console.debug(prefix, colorize(message));
+                    break;
+            }
+        }
+
+        if (!this.writeStream || this.writeStream.destroyed || !write) return;
+        this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${message.toString().trimEnd()}\n`, 'utf-8');
     }
 }
