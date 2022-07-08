@@ -6,6 +6,7 @@ import { replaceAll } from './replaceAll';
 import { trimChars } from './trimChar';
 import { isNumber } from './isNumber';
 import { Console } from 'console';
+import stripAnsi from 'strip-ansi';
 
 export interface LoggerOptions {
     prefixes?: {
@@ -29,7 +30,7 @@ export enum LogLevels {
 
 export class Logger {
     public options: LoggerOptions = {
-        enableDebugMode: false,
+        enableDebugMode: Logger.isDebugging(),
         addPrefixToAllNewLines: true,
         prefixes: {
             [LogLevels.INFO]: (loggerName) => chalk.bold(loggerName ? `${chalk.dim(loggerName)}${chalk.gray('/')}${'INFO'}` : 'INFO') + ' ',
@@ -88,7 +89,7 @@ export class Logger {
             const header = this.parseLogHeader(fileName);
             if (header) {
                 const date = `${header.date.toDateString()} - ${header.date.getHours()}-${header.date.getMinutes()}-${header.date.getSeconds()}-${header.date.getMilliseconds()}`;
-                fs.renameSync(fileName, `${date}${path.extname(file) ?? '.log'}`);
+                fs.renameSync(fileName, path.join(dir, `${date}${path.extname(file) ?? '.log'}`));
             } else {
                 fs.rmSync(fileName, { recursive: true, force: true });
             }
@@ -183,8 +184,8 @@ export class Logger {
 
     private print(message: any, level: LogLevels = LogLevels.INFO, write: boolean = true, consoleLog: boolean = true): void {
         let prefix: string|Function = this.options.prefixes![level];
-            prefix = prefix ? prefix(this.loggerName) : '';
-        let noColorPrefix = '';
+            prefix = (prefix ? prefix(this.loggerName) : '') as string;
+        let noColorPrefix = stripAnsi(prefix);
 
         if (consoleLog) {
             const colorize = this.options.colorMessages![level];
@@ -207,5 +208,9 @@ export class Logger {
 
         if (!this.writeStream || this.writeStream.destroyed || !write) return;
         this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${message.toString().trimEnd()}\n`, 'utf-8');
+    }
+
+    public static isDebugging(): boolean {
+        return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
     }
 }
