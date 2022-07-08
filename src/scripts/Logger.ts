@@ -57,6 +57,10 @@ export class Logger {
         this.enableDebugMode = options?.enableDebugMode ?? false;
     }
 
+    // Aliases
+    public info(...message: string[]): void { this.log(...message); }
+    public err(...message: string[]): void { this.error(...message); }
+    
     public log(...message: any[]): void { this.parseLogMessage(message, LogLevels.INFO); }
     public warn(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
     public error(...message: any[]): void { this.parseLogMessage(message, LogLevels.ERROR); }
