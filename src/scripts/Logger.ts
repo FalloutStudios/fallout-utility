@@ -1,11 +1,10 @@
-import * as fs from 'fs';
-import chalk from 'chalk';
-import * as path from 'path';
-import inspector from 'inspector';
-import { replaceAll } from './replaceAll';
-import { trimChars } from './trimChar';
 import { isNumber } from './isNumber';
-import { Console } from 'console';
+import { trimChars } from './trimChar';
+
+import chalk from 'chalk';
+import * as fs from 'fs';
+import inspector from 'inspector';
+import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 
 export interface LoggerOptions {
@@ -59,8 +58,8 @@ export class Logger {
     }
 
     // Aliases
-    public info(...message: string[]): void { this.log(...message); }
-    public err(...message: string[]): void { this.error(...message); }
+    public info(...message: any[]): void { this.log(...message); }
+    public err(...message: any[]): void { this.error(...message); }
     
     public log(...message: any[]): void { this.parseLogMessage(message, LogLevels.INFO); }
     public warn(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
@@ -148,6 +147,8 @@ export class Logger {
     }
 
     private parseLogMessage(messages: any[], level: LogLevels): void {
+        if (!messages.length) this.writeLog('', level);
+
         for (const message of messages) {
             if (typeof message == 'string') {
                 for (const line of message.split('\n')) {
@@ -178,7 +179,7 @@ export class Logger {
         } else if (typeof message === 'function') {
             this.print(`${message.toString()}`, level);
         } else {
-            this.print(message, level, false);
+            this.print(message, level);
         }
     }
 
@@ -207,7 +208,7 @@ export class Logger {
         }
 
         if (!this.writeStream || this.writeStream.destroyed || !write) return;
-        this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${message.toString().trimEnd()}\n`, 'utf-8');
+        this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${String(message).trimEnd()}\n`, 'utf-8');
     }
 
     public static isDebugging(): boolean {

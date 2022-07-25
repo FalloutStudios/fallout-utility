@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -28,6 +28,7 @@
   "dependencies": {
     "@types/prompt-sync": "^4.1.1",
     "chalk": "^4.1.2",
+    "fallout-utility": "^1.4.2",
     "prompt-sync": "4.1.6",
     "strip-ansi": "6.0.0"
   },
