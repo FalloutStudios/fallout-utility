@@ -26,7 +26,8 @@ export function getCommand (string: string, prefix: string, separator: string = 
 
     command.command = string.slice(prefix.length).trim().split(/\s+/)[0];
 
-    const args = string.slice(prefix.length).trim().split(/\s+/, 1).splice(1)[0] || '';
+    const args = string.slice(prefix.length).trim().split(/\s+/).splice(1).join(' ') || '';
+    console.log(args);
     command.args = args ? splitString(args, true, separator) : [];
 
     return command;

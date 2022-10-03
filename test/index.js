@@ -1,8 +1,5 @@
-import * as e from 'fallout-utility';
-import { input } from 'fallout-utility';
+import { getCommand, Logger } from 'fallout-utility';
 
-const logger = new e.Logger();
+const logger = new Logger();
 
-logger.log('Hello, WOrld');
-
-input('ee');
+logger.log(getCommand('!e this is a "string mf". wtf you want?', '!'));

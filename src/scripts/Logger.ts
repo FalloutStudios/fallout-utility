@@ -1,6 +1,6 @@
+import { inspect } from 'util';
 import { isNumber } from './isNumber.js';
 import { trimChars } from './trimChar.js';
-import { inspect } from 'util';
 
 import chalk from 'chalk';
 import * as fs from 'fs';
@@ -56,14 +56,24 @@ export class Logger {
         this.loggerName = options?.loggerName ?? undefined;
         this.writeStream = options?.writeStream ?? undefined;
         this.enableDebugMode = options?.enableDebugMode ?? false;
+
+        this.info = this.info.bind(this);
+        this.warn = this.warn.bind(this);
+        this.err = this.err.bind(this);
+        this.log = this.log.bind(this);
+        this.warning = this.warning.bind(this);
+        this.error = this.error.bind(this);
+        this.cloneLogger = this.cloneLogger.bind(this);
+        this.logFile = this.logFile.bind(this);
     }
 
     // Aliases
     public info(...message: any[]): void { this.log(...message); }
+    public warn(...message: any[]): void { this.warning(...message); }
     public err(...message: any[]): void { this.error(...message); }
 
     public log(...message: any[]): void { this.parseLogMessage(message, LogLevels.INFO); }
-    public warn(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
+    public warning(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
     public error(...message: any[]): void { this.parseLogMessage(message, LogLevels.ERROR); }
     public debug(...message: any[]): void { if (this.enableDebugMode) this.parseLogMessage(message, LogLevels.DEBUG); }
 
@@ -176,8 +186,8 @@ export class Logger {
     }
 
     private print(message: any, level: LogLevels = LogLevels.INFO, write: boolean = true, consoleLog: boolean = true): void {
-        let prefix: string|Function = this.options.prefixes![level];
-            prefix = (prefix ? prefix(this.loggerName) : '') as string;
+        let prefix: string|((name?: string) => string) = this.options.prefixes![level] || '';
+            prefix = typeof prefix === 'function' ? prefix(this.loggerName) : prefix;
         let noColorPrefix = stripAnsi(prefix);
 
         if (consoleLog) {
