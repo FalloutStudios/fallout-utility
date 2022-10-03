@@ -2,6 +2,9 @@
     "include": [
         "../**/*"
     ],
+    "exclude": [
+        "../src/test/**"
+    ],
     "compilerOptions": {
         "target": "ES2016",
         "rootDir": "../src",
