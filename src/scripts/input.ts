@@ -17,6 +17,7 @@ export function input (prompt: string | PromptOptions = ''): any {
         prompt = { text: prompt };
     }
 
+    // TODO: Use alternative for esm and cjs
     const Prompt = require('prompt-sync')({
         sigint: prompt.sigint || true,
         eof: prompt.eot || true,
@@ -27,9 +28,9 @@ export function input (prompt: string | PromptOptions = ''): any {
     const repeatIfEmpty = prompt?.repeatIfEmpty || prompt?.repeat || false;
     const exitStrings = prompt?.exitStrings || [];
 
-    let response = undefined;
+    let response: string;
     while (true) {
-        response = Prompt(text, (echo === null ? null : { echo: echo }));
+        response = Prompt(text, (echo === null ? null : { echo: echo })) || '';
         if(response || !response && !repeatIfEmpty || exitStrings && exitStrings.includes(response)) break;
     }
 

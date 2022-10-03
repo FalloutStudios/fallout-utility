@@ -1,4 +1,4 @@
-import { default as chalk } from 'chalk';
+import chalk from 'chalk';
 
 /**
  * Find and replace characters in a string
@@ -16,4 +16,4 @@ export function replaceAll (str: string, find: string | string[], replace: strin
     }
 
     return str;
-}                       
+}

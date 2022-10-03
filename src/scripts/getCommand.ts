@@ -1,5 +1,5 @@
-import { detectCommand } from "./detectCommand";
-import { splitString } from "./splitString";
+import { detectCommand } from "./detectCommand.js";
+import { splitString } from "./splitString.js";
 
 export interface Command {
     command?: string;
@@ -24,9 +24,9 @@ export function getCommand (string: string, prefix: string, separator: string = 
 
     if (!detectCommand(string, prefix)) return command;
 
-    command.command = string.slice(prefix.length).trim().split(' ')[0];
+    command.command = string.slice(prefix.length).trim().split(/\s+/)[0];
 
-    const args = string.slice(prefix.length).trim().split(' ').splice(1).join(' ');
+    const args = string.slice(prefix.length).trim().split(/\s+/, 1).splice(1)[0] || '';
     command.args = args ? splitString(args, true, separator) : [];
 
     return command;

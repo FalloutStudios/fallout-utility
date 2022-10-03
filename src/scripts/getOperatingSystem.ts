@@ -1,6 +1,6 @@
 import operatingSystem  from 'os';
 
-export enum os {
+export enum OS {
     WINDOWS,
     LINUX,
     MACOS,
@@ -10,21 +10,21 @@ export enum os {
     OTHER
 }
 
-export function getOperatingSystem(): os {
+export function getOperatingSystem(): OS {
     switch (operatingSystem.platform()) {
         case 'win32':
-            return os.WINDOWS;
+            return OS.WINDOWS;
         case 'linux':
-            return os.LINUX;
+            return OS.LINUX;
         case 'darwin':
-            return os.MACOS;
+            return OS.MACOS;
         case 'android':
-            return os.ANDROID;
+            return OS.ANDROID;
         case 'openbsd':
-            return os.OPENBSD;
+            return OS.OPENBSD;
         case 'freebsd':
-            return os.FREEBSD;
+            return OS.FREEBSD;
         default:
-            return os.OTHER;
+            return OS.OTHER;
     }
 }

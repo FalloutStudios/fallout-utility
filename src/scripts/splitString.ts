@@ -1,5 +1,5 @@
-import { escapeRegExp } from './escapeRegExp';
-import { trimChars } from "./trimChar";
+import { escapeRegExp } from './escapeRegExp.js';
+import { trimChars } from "./trimChar.js";
 
 /**
  * Split a string into an array of strings
@@ -8,16 +8,14 @@ import { trimChars } from "./trimChar";
  * @param separator Split separator
  */
 export function splitString (str: string, removeQuotations: boolean = false, separator: string = ' '): string[] {
-    let regex = new RegExp(`(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*)${separator}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`);
-    
-    const text = escapeRegExp(str.toString().trim());
+    let regex = new RegExp(`(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*)${escapeRegExp(separator)}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`);
+
+    const text = str.toString().trim();
     const matches = text.split(regex);
+    const newText: string[] = [];
 
-    let newText = [];
     for (let word of matches) {
-        word = word.replace(/(?:\\(.))/, '$1');
         word = removeQuotations && word.startsWith('"') && word.endsWith('"') ? trimChars(word, '"') : word;
-
         newText.push(word);
     }
 

@@ -1,4 +1,5 @@
-import { Logger } from '../scripts/Logger';
+import { Logger } from '../scripts/Logger.js';
+import { splitString } from '../scripts/splitString.js';
 
 const logger = new Logger({
         stringifyJSON: true,
@@ -6,6 +7,4 @@ const logger = new Logger({
     })
     .logFile('./logs/latest.log');
 
-logger.warn('hi', 'hello', { 'hi': 'e' }, function e() {}, 1, 2, 4, 3, ['3','4','5']);
-logger.error(new Error('hi'));
-logger.error([logger,logger,logger]);
+logger.log(splitString('eeee ee ee e e "e ,e \'e .e .e" .e e. . . ^ + _ `', true));

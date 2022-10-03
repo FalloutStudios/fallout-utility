@@ -2,6 +2,6 @@
  * 
  * Checks if the given value is a finite number.
  */
-export function isNumber (value: any): boolean {
-    return !isNaN(parseFloat(value)) && isFinite(value);
+export function isNumber (value: unknown): value is number {
+    return !isNaN(parseFloat(value as any)) && isFinite(value as any);
 }

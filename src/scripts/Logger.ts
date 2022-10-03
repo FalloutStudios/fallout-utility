@@ -1,5 +1,6 @@
-import { isNumber } from './isNumber';
-import { trimChars } from './trimChar';
+import { isNumber } from './isNumber.js';
+import { trimChars } from './trimChar.js';
+import { inspect } from 'util';
 
 import chalk from 'chalk';
 import * as fs from 'fs';
@@ -60,7 +61,7 @@ export class Logger {
     // Aliases
     public info(...message: any[]): void { this.log(...message); }
     public err(...message: any[]): void { this.error(...message); }
-    
+
     public log(...message: any[]): void { this.parseLogMessage(message, LogLevels.INFO); }
     public warn(...message: any[]): void { this.parseLogMessage(message, LogLevels.WARN); }
     public error(...message: any[]): void { this.parseLogMessage(message, LogLevels.ERROR); }
@@ -96,8 +97,8 @@ export class Logger {
             writeHeader = true;
         }
 
-        this.writeStream = fs.createWriteStream(fileName);
-        if (writeHeader) this.writeStream.write(this.createLogHeader(file));
+        this.setWriteStream(fs.createWriteStream(fileName));
+        if (writeHeader) this.writeStream!.write(this.createLogHeader(file));
 
         return this;
     }
@@ -108,7 +109,7 @@ export class Logger {
 
     public stopLogWriteStream(): void {
         if(!this.writeStream || this.writeStream.destroyed) return;
-        
+
         this.writeStream.end();
         this.writeStream = undefined;
     }
@@ -127,7 +128,7 @@ export class Logger {
         if (!log) return undefined;
 
         log = log.split('\n');
-        
+
         const time = (log[0].startsWith(`Time: `) ? trimChars(log[0], `Time: `) : null);
         const originalFile = (log[0].startsWith(`File: `) ? trimChars(log[0], `File: `) : null) ?? file;
 
@@ -163,23 +164,14 @@ export class Logger {
     }
 
     private writeLog(message: any, level: LogLevels): void {
-        
+
         if (['boolean', 'string', 'number', 'undefined'].includes(typeof message)) {
             return this.print(`${String(message)}`, level);
-        } else if (message instanceof Error) {
-            if (!message.stack) return this.print(`${message.name}: ${message.message}`, level);
-            if (!this.options.addPrefixToAllNewLines) return this.print(`${message.stack}`, level);
-
-            return this.parseLogMessage(message.stack.split('\n'), level);
-        } else if (typeof message === 'object' && this.options.stringifyJSON) {
-            return this.parseLogMessage(JSON.stringify(message, null, 2).split('\n'), level);
-        } else if (typeof message === 'object') {
-            this.print(message, level, false, true);
-            this.print(`${JSON.stringify(message, null, 2)}`, level, true, false);
-        } else if (typeof message === 'function') {
-            this.print(`${message.toString()}`, level);
         } else {
-            this.print(message, level);
+            message = inspect(message);
+            if (!this.options.addPrefixToAllNewLines) return this.print(message, level, true, true);
+
+            return this.parseLogMessage(message.split('\n'), level);
         }
     }
 

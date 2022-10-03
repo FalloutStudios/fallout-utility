@@ -1,10 +1,15 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.4.6",
+  "version": "1.5.0",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/mjs/index.js",
+  "typings": "./dist/types/index.d.ts",
+  "exports": {
+    "import": "./dist/mjs/index.js",
+    "require": "./dist/cjs/index.js"
+  },
   "keywords": [
     "fallout",
     "fallout-utility",
@@ -20,11 +25,20 @@
     "url": "https://github.com/FalloutStudios/Fallout-utility/issues"
   },
   "scripts": {
-    "build": "rm -rf dist dist && tsc",
+    "clean": "rm -rf dist",
+    "build": "yarn run clean && yarn run build:types && yarn run build:cjs && yarn run build:mjs",
+    "build:types": "npx tsc -p ./tsconfig/tsconfig.types.json",
+    "build:cjs": "npx tsc -p ./tsconfig/tsconfig.cjs.json",
+    "build:mjs": "npx tsc -p ./tsconfig/tsconfig.mjs.json && echo '{ \"type\": \"module\" }' >> ./dist/mjs/package.json",
     "test": "ts-node-dev --respawn src/test",
     "test:run": "node ./dist/test/index.js",
     "test:build": "yarn run build && yarn run test:run"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "dependencies": {
     "chalk": "^4.1.2",
     "prompt-sync": "^4.2.0",
