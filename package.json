@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.10",
+  "version": "1.5.12",
   "license": "MIT",
   "type": "commonjs",
   "main": "./dist/cjs/index.js",
