@@ -3,6 +3,7 @@
   "author": "Fallout Studios",
   "version": "1.5.7",
   "license": "MIT",
+  "type": "commonjs",
   "main": "./dist/cjs/index.js",
   "module": "./esm.mjs",
   "types": "./dist/types/index.d.ts",
@@ -10,8 +11,9 @@
     ".": {
       "import": "./esm.mjs",
       "require": "./dist/lib/index.cjs",
-      "default": "./dist/types/index.d.ts"
-    }
+      "types": "./dist/types/index.d.ts"
+    },
+    "./esm.mjs": "./esm.mjs"
   },
   "keywords": [
     "fallout",
