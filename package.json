@@ -34,6 +34,7 @@
   },
   "files": [
     "dist",
+    "esm.mjs",
     "LICENSE",
     "README.md"
   ],
