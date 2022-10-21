@@ -1,14 +1,17 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "license": "MIT",
-  "main": "./dist/cjs/index",
-  "module": "./dist/mjs/index",
-  "typings": "./dist/types/index",
+  "main": "./dist/cjs/index.js",
+  "module": "./esm.mjs",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    "import": "./dist/mjs/index.js",
-    "require": "./dist/cjs/index.js"
+    ".": {
+      "import": "./esm.mjs",
+      "require": "./dist/lib/index.js",
+      "default": "./dist/types/index.d.ts"
+    }
   },
   "keywords": [
     "fallout",
@@ -25,12 +28,9 @@
     "url": "https://github.com/FalloutStudios/Fallout-utility/issues"
   },
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "yarn run clean && yarn run build:types && yarn run build:cjs && yarn run build:mjs",
-    "build:types": "npx tsc -p ./tsconfig/tsconfig.types.json",
-    "build:cjs": "npx tsc -p ./tsconfig/tsconfig.cjs.json",
-    "build:mjs": "npx tsc -p ./tsconfig/tsconfig.mjs.json && echo '{ \"type\": \"module\" }' > ./dist/mjs/package.json",
-    "build:publish": "yarn run build && yarn publish"
+    "clean": "npx rimraf dist",
+    "build": "npm run clean && npx tsc",
+    "build:publish": "npm run build && npm publish"
   },
   "files": [
     "dist",
@@ -45,7 +45,8 @@
   "devDependencies": {
     "@types/node": "^18.6.1",
     "@types/prompt-sync": "^4.1.1",
-    "fallout-utility": "./",
+    "fallout-utility": "file:./",
+    "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
   }
 }

@@ -1,0 +1,20 @@
+{
+  "include": [
+    "./src/**/*"
+  ],
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "allowJs": true,
+    "declaration": true,
+    "outDir": "./dist/lib",
+    "declarationDir": "./dist/types",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "listEmittedFiles": true,
+    "moduleResolution": "Node16",
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

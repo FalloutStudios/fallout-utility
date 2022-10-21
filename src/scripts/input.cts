@@ -17,7 +17,6 @@ export function input (prompt: string | PromptOptions = ''): any {
         prompt = { text: prompt };
     }
 
-    // TODO: Use alternative for esm and cjs
     const Prompt = require('prompt-sync')({
         sigint: prompt.sigint || true,
         eof: prompt.eot || true,
