@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
   "module": "./esm.mjs",
