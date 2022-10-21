@@ -12,7 +12,8 @@
       "types": "./dist/types/index.d.ts",
       "import": "./esm.mjs",
       "require": "./dist/lib/index.cjs"
-    }
+    },
+    "./esm.mjs": "./esm.mjs"
   },
   "keywords": [
     "fallout",
