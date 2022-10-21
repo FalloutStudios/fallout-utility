@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
   "module": "./esm.mjs",
@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "import": "./esm.mjs",
-      "require": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs",
       "default": "./dist/types/index.d.ts"
     }
   },
