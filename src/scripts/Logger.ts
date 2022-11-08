@@ -15,6 +15,8 @@ export interface LoggerOptions {
     colorMessages?: {
         [level: number]: (message: string) => string;
     },
+    ObjectInspectDepth?: number|null;
+    ObjectInspectColorized?: boolean;
     stringifyJSON?: boolean;
     addPrefixToAllNewLines?: boolean;
     writeStream?: fs.WriteStream;
@@ -178,7 +180,7 @@ export class Logger {
         if (['boolean', 'string', 'number', 'undefined'].includes(typeof message)) {
             return this.print(`${String(message)}`, level);
         } else {
-            message = inspect(message);
+            message = inspect(message, false, this.options.ObjectInspectDepth, this.options.ObjectInspectColorized);
             if (!this.options.addPrefixToAllNewLines) return this.print(message, level, true, true);
 
             return this.parseLogMessage(message.split('\n'), level);
@@ -195,16 +197,16 @@ export class Logger {
 
             switch (level) {
                 case LogLevels.INFO:
-                    console.log(prefix, colorize(message));
+                    console.log(prefix, colorize ? colorize(message) : message);
                     break;
                 case LogLevels.WARN:
-                    console.warn(prefix, colorize(message));
+                    console.warn(prefix, colorize ? colorize(message) : message);
                     break;
                 case LogLevels.ERROR:
-                    console.error(prefix, colorize(message));
+                    console.error(prefix, colorize ? colorize(message) : message);
                     break;
                 case LogLevels.DEBUG:
-                    console.debug(prefix, colorize(message));
+                    console.debug(prefix, colorize ? colorize(message) : message);
                     break;
             }
         }
