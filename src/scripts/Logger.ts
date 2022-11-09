@@ -3,18 +3,24 @@ import { isNumber } from './isNumber.js';
 import { trimChars } from './trimChar.js';
 
 import chalk from 'chalk';
-import * as fs from 'fs';
+import fs from 'fs';
 import inspector from 'inspector';
-import * as path from 'path';
+import path from 'path';
 import stripAnsi from 'strip-ansi';
 
 export interface LoggerOptions {
     prefixes?: {
         [level: number]: (loggerName?: string) => string;
     },
+    /**
+     * @deprecated Use {@link LoggerOptions.formatMessages} instead
+     */
     colorMessages?: {
         [level: number]: (message: string) => string;
     },
+    formatMessages?: {
+        [level: number]: (message: string) => string;
+    }
     ObjectInspectDepth?: number|null;
     ObjectInspectColorized?: boolean;
     stringifyJSON?: boolean;
@@ -35,17 +41,19 @@ export class Logger {
         enableDebugMode: Logger.isDebugging(),
         addPrefixToAllNewLines: true,
         prefixes: {
-            [LogLevels.INFO]: (loggerName) => chalk.bold(loggerName ? `${chalk.dim(loggerName)}${chalk.gray('/')}${'INFO'}` : 'INFO') + ' ',
-            [LogLevels.WARN]: (loggerName) => chalk.bold(loggerName ? `${chalk.yellow.dim(loggerName)}${chalk.gray('/')}${chalk.yellow('WARN')}` : 'WARN') + ' ',
-            [LogLevels.ERROR]: (loggerName) => chalk.bold(loggerName ? `${chalk.red.dim(loggerName)}${chalk.gray('/')}${chalk.red('ERROR')}` : 'ERROR') + ' ',
-            [LogLevels.DEBUG]: (loggerName) => chalk.bold(loggerName ? `${chalk.magenta.dim(loggerName)}${chalk.gray('/')}${chalk.magenta('DEBUG')}` : 'DEBUG' + ' ')
+            [LogLevels.INFO]: (loggerName) => chalk.bgWhite.black(' INFO  ')               +  chalk.bgGray.black(loggerName ? ` ${loggerName} ` : ''),
+            [LogLevels.WARN]: (loggerName) => chalk.bgYellowBright.black( ' WARN  ') +  chalk.bgGray.black(loggerName ? ` ${loggerName} ` : ''),
+            [LogLevels.ERROR]: (loggerName) => chalk.bgRedBright.black(' ERROR ')   +  chalk.bgGray.black(loggerName ? ` ${loggerName} ` : ''),
+            [LogLevels.DEBUG]: (loggerName) => chalk.bgMagentaBright.black(' DEBUG ')     +  chalk.bgGray.black(loggerName ? ` ${loggerName} ` : '')
         },
-        colorMessages: {
+        formatMessages: {
             [LogLevels.INFO]: (message: string) => message,
-            [LogLevels.WARN]: (message: string) => message,
-            [LogLevels.ERROR]: (message: string) => message,
-            [LogLevels.DEBUG]: (message: string) => message
+            [LogLevels.WARN]: (message: string) => chalk.yellow(message),
+            [LogLevels.ERROR]: (message: string) => chalk.red(message),
+            [LogLevels.DEBUG]: (message: string) => chalk.magenta(message)
         },
+        ObjectInspectColorized: true,
+        ObjectInspectDepth: 2,
         stringifyJSON: true,
     };
     public loggerName?: string;
@@ -177,7 +185,7 @@ export class Logger {
 
     private writeLog(message: any, level: LogLevels): void {
 
-        if (['boolean', 'string', 'number', 'undefined'].includes(typeof message)) {
+        if (typeof message === 'string') {
             return this.print(`${String(message)}`, level);
         } else {
             message = inspect(message, false, this.options.ObjectInspectDepth, this.options.ObjectInspectColorized);
@@ -188,31 +196,26 @@ export class Logger {
     }
 
     private print(message: any, level: LogLevels = LogLevels.INFO, write: boolean = true, consoleLog: boolean = true): void {
-        let prefix: string|((name?: string) => string) = this.options.prefixes![level] || '';
+        let prefix: string|((name?: string) => string) = (this.options.prefixes ?? {})[level] || '';
             prefix = typeof prefix === 'function' ? prefix(this.loggerName) : prefix;
         let noColorPrefix = stripAnsi(prefix);
 
         if (consoleLog) {
-            const colorize = this.options.colorMessages![level];
-
+            const colorize = (this.options.formatMessages ?? {})[level] ?? (this.options.colorMessages ?? {})[level];
             switch (level) {
                 case LogLevels.INFO:
                     console.log(prefix, colorize ? colorize(message) : message);
-                    break;
                 case LogLevels.WARN:
                     console.warn(prefix, colorize ? colorize(message) : message);
-                    break;
                 case LogLevels.ERROR:
                     console.error(prefix, colorize ? colorize(message) : message);
-                    break;
                 case LogLevels.DEBUG:
                     console.debug(prefix, colorize ? colorize(message) : message);
-                    break;
             }
         }
 
         if (!this.writeStream || this.writeStream.destroyed || !write) return;
-        this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${String(message).trimEnd()}\n`, 'utf-8');
+        this.writeStream.write(`${noColorPrefix ? noColorPrefix + ' ' : ''}${stripAnsi(message).trimEnd()}\n`, 'utf-8');
     }
 
     public static isDebugging(): boolean {
