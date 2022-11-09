@@ -205,12 +205,16 @@ export class Logger {
             switch (level) {
                 case LogLevels.INFO:
                     console.log(prefix, colorize ? colorize(message) : message);
+                    break;
                 case LogLevels.WARN:
                     console.warn(prefix, colorize ? colorize(message) : message);
+                    break;
                 case LogLevels.ERROR:
                     console.error(prefix, colorize ? colorize(message) : message);
+                    break;
                 case LogLevels.DEBUG:
                     console.debug(prefix, colorize ? colorize(message) : message);
+                    break;
             }
         }
 
