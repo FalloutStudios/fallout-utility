@@ -6,6 +6,8 @@ import chalk from 'chalk';
  * @param find Strings to find
  * @param replace Replacement strings
  */
+export function replaceAll (str: string, find: string[], replace: string[]): string;
+export function replaceAll (str: string, find: string, replace: string): string;
 export function replaceAll (str: string, find: string | string[], replace: string | string[]): string {
     if (typeof find === 'string') find = [find];
     if (typeof replace === 'string') replace = [replace];
