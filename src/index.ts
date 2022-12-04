@@ -3,7 +3,7 @@ export * from './scripts/escapeRegExp.js';
 export * from './scripts/getCommand.js';
 export * from './scripts/getOperatingSystem.js';
 export * from './scripts/getRandomKey.js';
-export * from './scripts/input.cjs';
+export * from './scripts/input.js';
 export * from './scripts/isNumber.js';
 export * from './scripts/limitText.js';
 export * from './scripts/Logger.js';
