@@ -1,17 +1,17 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.17",
+  "version": "1.5.18",
   "license": "MIT",
   "type": "commonjs",
-  "main": "./dist/cjs/index.js",
-  "module": "./esm.mjs",
+  "main": "./dist/lib/index.js",
+  "module": "./dist/lib/esm.mjs",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/types/index.d.ts",
-        "default": "./esm.mjs"
+        "default": "./dist/lib/esm.mjs"
       },
       "require": {
         "types": "./dist/types/index.d.ts",
