@@ -2,6 +2,7 @@ import operatingSystem  from 'os';
 import inspector from 'inspector';
 import _path from 'path';
 import { inspect } from 'util';
+import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 export enum OS {
     WINDOWS,
@@ -44,3 +45,29 @@ export function isDebugging(): boolean {
 }
 
 export const path = getOperatingSystem() === OS.WINDOWS ? _path.win32 : _path.posix;
+
+export interface CreateNewFileOptions<T> {
+    formatReadData?: (data: string|Buffer, defaultContent: T) => T;
+    encodeFileData?: (data: T) => any;
+    encoding?: EncodingOption;
+}
+
+/**
+ * Creates file if doesn't exists and reads the file
+ * @param filePath File path
+ * @param defaultContent Default file content
+ * @param options File create options
+ */
+export function createReadFile<T>(filePath: string, defaultContent: T, options?: CreateNewFileOptions<T> & Required<Pick<CreateNewFileOptions<T>, 'formatReadData'>>): T;
+export function createReadFile<T>(filePath: string, defaultContent: T, options?: CreateNewFileOptions<T>): string|Buffer;
+export function createReadFile<T>(filePath: string, defaultContent: T, options?: CreateNewFileOptions<T>): string|Buffer|T {
+    if (!existsSync(filePath)) {
+        mkdirSync(path.dirname(filePath), { recursive: true });
+        writeFileSync(filePath, options?.encodeFileData ? options?.encodeFileData(defaultContent) : String(defaultContent), options?.encoding);
+    }
+
+    const fileData = readFileSync(filePath, options?.encoding);
+    return options?.formatReadData ? options.formatReadData(fileData, defaultContent) : fileData;
+}
+
+const data = createReadFile('./eee/', { sus: true }, { formatReadData: () => ({ sus: true }) });
