@@ -59,6 +59,11 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.warning = this.warning.bind(this);
         this.error = this.error.bind(this);
         this.debug = this.debug.bind(this);
+        this.logToFile = this.logToFile.bind(this);
+        this.setDebugMode = this.setDebugMode.bind(this);
+        this.setName = this.setName.bind(this);
+        this.setWriteStream = this.setWriteStream.bind(this);
+        this.closeWriteStream = this.closeWriteStream.bind(this);
         this.clone = this.clone.bind(this);
     }
 
@@ -94,7 +99,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.emit('debug', message);
     }
 
-    public logFile(filePath: string, overwriteOldFile: boolean = false): this {
+    public logToFile(filePath: string, overwriteOldFile: boolean = false): this {
         if (this.writeStream) throw new Error('Logger already has an open file write stream.');
 
         const filePathInfo = path.parse(filePath);
