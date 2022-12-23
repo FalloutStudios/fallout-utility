@@ -6,7 +6,7 @@ import { inspect } from 'util';
 import stripAnsi from 'strip-ansi';
 
 export enum LoggerLevel {
-    INFO,
+    INFO = 1,
     WARN, 
     ERROR,
     DEBUG
@@ -27,7 +27,7 @@ export interface LoggerOptions {
 export interface LoggerEvents {
     log: (message: string) => Awaitable<void>;
     warn: (message: string) => Awaitable<void>;
-    error: (message: string) => Awaitable<void>;
+    err: (message: string) => Awaitable<void>;
     debug: (message: string) => Awaitable<void>;
 }
 
@@ -49,7 +49,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
 
         this.formatMessageLines = options?.formatMessageLines ?? {};
         this.maxObjectInspectDepth = options?.maxObjectInspectDepth ?? null;
-        this.colorizeObjects = options?.colorizeObjects ?? false;
+        this.colorizeObjects = options?.colorizeObjects ?? true;
         this.enableDebugmode = options?.enableDebugmode ?? null;
         this.forceEmitLogEvents = options?.forceEmitLogEvents ?? false;
         this.writeStream = options?.writeStream;
@@ -85,7 +85,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         const message = this._print(messages, LoggerLevel.ERROR).join('\n');
 
         this._write(message, LoggerLevel.ERROR);
-        this.emit('error', message);
+        this.emit('err', message);
     }
     public debug(...messages: any[]): void {
         const message = this._print(messages, LoggerLevel.DEBUG).join('\n');
