@@ -9,8 +9,8 @@ export interface PromptOptions {
 }
 
 /**
- * 
  * Prompts the user for input
+ * @deprecated Use something like `inquirer` package instead
  */
 export function input(prompt: string | PromptOptions = ''): string|null {
     if (typeof prompt === 'string') {
