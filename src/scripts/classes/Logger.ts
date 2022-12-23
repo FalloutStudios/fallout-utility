@@ -2,7 +2,7 @@ import { WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renam
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Awaitable } from '../../types';
 import { isDebugging, path } from '../system';
-import { inspect } from 'util';
+import { InspectOptions, inspect } from 'util';
 import stripAnsi from 'strip-ansi';
 
 export enum LoggerLevel {
@@ -16,8 +16,7 @@ export interface LoggerOptions {
     formatMessageLines?: {
         [level: number]: (message: string, logger: Logger) => string;
     },
-    maxObjectInspectDepth?: number|null;
-    colorizeObjects?: boolean;
+    objectInspectOptions?: InspectOptions;
     enableDebugmode?: boolean|null;
     forceEmitLogEvents?: boolean;
     writeStream?: WriteStream;
@@ -33,8 +32,7 @@ export interface LoggerEvents {
 
 export class Logger extends TypedEmitter<LoggerEvents> {
     public formatMessageLines: Exclude<LoggerOptions['formatMessageLines'], undefined>;
-    public maxObjectInspectDepth: number|null;
-    public colorizeObjects: boolean;
+    public objectInspectOptions?: InspectOptions;
     public enableDebugmode: boolean|null;
     public forceEmitLogEvents: boolean;
     public writeStream?: WriteStream;
@@ -48,8 +46,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         super();
 
         this.formatMessageLines = options?.formatMessageLines ?? {};
-        this.maxObjectInspectDepth = options?.maxObjectInspectDepth ?? null;
-        this.colorizeObjects = options?.colorizeObjects ?? true;
+        this.objectInspectOptions = options?.objectInspectOptions ?? { colors: true };
         this.enableDebugmode = options?.enableDebugmode ?? null;
         this.forceEmitLogEvents = options?.forceEmitLogEvents ?? false;
         this.writeStream = options?.writeStream;
@@ -151,7 +148,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         const formatter = (this.formatMessageLines[level] ?? (e => e));
         if (!messages.length) this._write(formatter('', this), level);
 
-        const lines = messages.map(msg => inspect(msg))
+        const lines = messages.map(msg => typeof msg === 'string' ? msg : inspect(msg, this.objectInspectOptions))
             .join(' ')
             .split('\n')
             .map(msg => formatter(msg, this));
