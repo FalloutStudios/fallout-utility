@@ -12,7 +12,7 @@ export interface PromptOptions {
  * 
  * Prompts the user for input
  */
-export function input (prompt: string | PromptOptions = ''): string|null {
+export function input(prompt: string | PromptOptions = ''): string|null {
     if (typeof prompt === 'string') {
         prompt = { text: prompt };
     }

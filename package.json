@@ -47,7 +47,8 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "prompt-sync": "^4.2.0",
-    "strip-ansi": "^6.0.1"
+    "strip-ansi": "^6.0.1",
+    "tiny-typed-emitter": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

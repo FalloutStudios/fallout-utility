@@ -1,4 +1,6 @@
 import operatingSystem  from 'os';
+import inspector from 'inspector';
+import _path from 'path';
 
 export enum OS {
     WINDOWS,
@@ -10,6 +12,9 @@ export enum OS {
     OTHER
 }
 
+/**
+ * Get operation system
+ */
 export function getOperatingSystem(): OS {
     switch (operatingSystem.platform()) {
         case 'win32':
@@ -28,3 +33,13 @@ export function getOperatingSystem(): OS {
             return OS.OTHER;
     }
 }
+
+/**
+ * Checks if debug mode is enabled
+ * @experimental
+ */
+export function isDebugging(): boolean {
+    return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
+}
+
+export const path = getOperatingSystem() === OS.WINDOWS ? _path.win32 : _path.posix;

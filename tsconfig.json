@@ -3,16 +3,17 @@
     "./src/**/*"
   ],
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "Node16",
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "rootDir": "./src",
-    "declaration": true,
     "outDir": "./dist/lib",
     "declarationDir": "./dist/types",
+    "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "listEmittedFiles": true,
-    "moduleResolution": "Node16",
     "strict": true,
     "skipLibCheck": true
   }
