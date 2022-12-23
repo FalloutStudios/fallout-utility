@@ -1,6 +1,7 @@
 import operatingSystem  from 'os';
 import inspector from 'inspector';
 import _path from 'path';
+import { inspect } from 'util';
 
 export enum OS {
     WINDOWS,

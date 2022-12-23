@@ -1,3 +1,4 @@
+import { replaceAll } from './strings';
 import { RestOrArray } from '../types';
 import { randomInt } from './numbers';
 
@@ -20,4 +21,55 @@ export function getRandomKey<T = unknown>(obj: any): T {
 
     const keys = Array.isArray(obj) ? obj : Object.keys(obj as unknown[]);
     return keys[randomInt(0, (keys.length - 1))];
+}
+
+/**
+ * Slice array values into chunks
+ * @param arr Array to slice
+ * @param chunkSize Chunk size
+ */
+export function sliceIntoChunks<T>(arr: T[], chunkSize: number): T[][] {
+    const res: T[][] = [];
+
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+
+    return res;
+}
+
+/**
+ * Replace values inside an object recursively
+ * @param object Object to replace values from
+ * @param find String to replace
+ * @param replace Replacement string
+ */
+export function recursiveObjectReplaceValues<T extends string|{}|[]>(object: T, find: string[], replace: string[]): T;
+export function recursiveObjectReplaceValues<T extends string|{}|[]>(object: T, find: string, replace: string): T;
+export function recursiveObjectReplaceValues<T extends string|{}|[]>(object: T, _find: string|string[], _replace: string|string[]): T {
+    const find = typeof _find === 'object' ? _find : [_find];
+    const replace = typeof _replace === 'object' ? _replace : [_replace];
+
+    if (typeof object !== 'object') return typeof object !== 'string' ? object : replaceAll(object, find, replace) as T;
+    if (Array.isArray(object)) return object.map(v => typeof v === 'string' ? replaceAll(v, find, replace) : recursiveObjectReplaceValues(v, find, replace)) as T;
+
+    const keys = object ? Object.keys(object) : [];
+    const values = Object.values(object!);
+
+    let newObject = {};
+    let i = 0;
+
+    for (const value of values) {
+        newObject = {
+            ...newObject,
+            [keys[i]]: typeof value === 'string' || typeof value === 'object'
+                ? recursiveObjectReplaceValues(value, find, replace)
+                : value
+        };
+
+        i++;
+    }
+
+    return newObject as T;
 }
