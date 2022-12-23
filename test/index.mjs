@@ -9,9 +9,4 @@ const logger = new Logger({
 });
 
 logger.logFile('./logs/latest.log');
-
-logger.on('err', (message) => {
-    console.log(message);
-});
-
-logger.err(await import('fallout-utility'));
+logger.err(require('fallout-utility'));

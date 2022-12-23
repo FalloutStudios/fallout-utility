@@ -1,7 +1,6 @@
 const chalk = require('chalk');
 const { Logger, LoggerLevel } = require('fallout-utility');
 
-
 const logger = new Logger({
     name: 'Hi',
     formatMessageLines: {
@@ -10,9 +9,4 @@ const logger = new Logger({
 });
 
 logger.logFile('./logs/latest.log');
-
-logger.on('err', (message) => {
-    console.log(message);
-});
-
 logger.err(require('fallout-utility'));
