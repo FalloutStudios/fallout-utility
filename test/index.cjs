@@ -1,17 +1,18 @@
 const chalk = require('chalk');
-const { getCommand, Logger, LogLevels } = require('fallout-utility');
+const { Logger, LoggerLevel } = require('fallout-utility');
+
 
 const logger = new Logger({
-    colorMessages: {
-        [LogLevels.WARN]: (message) => chalk.red(message)
-    },
-    enableDebugMode: true,
-    loggerName: 'E'
+    name: 'Hi',
+    formatMessageLines: {
+        [LoggerLevel.WARN]: message => chalk.red(message)
+    }
 });
 
-logger.logFile('./logs/log.txt')
+logger.logFile('./logs/latest.log');
 
-logger.log(getCommand('!e this is a "string mf". wtf you want?', '!'));
-logger.warn(require('fallout-utility'));
-logger.error(require('fallout-utility'));
-logger.debug(require('fallout-utility'));
+logger.on('err', (message) => {
+    console.log(message);
+});
+
+logger.err(require('fallout-utility'));
