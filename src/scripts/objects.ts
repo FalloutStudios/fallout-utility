@@ -78,7 +78,7 @@ export function recursiveObjectReplaceValues<T extends string|{}|[]>(object: T, 
  * Check if an object is from a class
  * @param object Object to check
  */
-function isClass<T>(object: any): object is T {
+export function isClass<T>(object: any): object is T {
     const isClassConstructor = object.constructor && object.constructor.toString().substring(0, 5) === 'class';
     if (object.prototype === undefined) return isClassConstructor;
 
