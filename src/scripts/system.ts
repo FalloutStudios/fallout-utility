@@ -69,5 +69,3 @@ export function createReadFile<T>(filePath: string, defaultContent: T, options?:
     const fileData = readFileSync(filePath, options?.encoding);
     return options?.formatReadData ? options.formatReadData(fileData, defaultContent) : fileData;
 }
-
-const data = createReadFile('./eee/', { sus: true }, { formatReadData: () => ({ sus: true }) });
