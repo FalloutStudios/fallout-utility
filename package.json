@@ -1,7 +1,7 @@
 {
   "name": "fallout-utility",
   "author": "Fallout Studios",
-  "version": "1.5.21",
+  "version": "1.5.22",
   "license": "MIT",
   "type": "commonjs",
   "main": "./dist/lib/index.js",
@@ -55,5 +55,8 @@
     "fallout-utility": "file:./",
     "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
+  },
+  "publishConfig": {
+    "tag": "legacy"
   }
 }
