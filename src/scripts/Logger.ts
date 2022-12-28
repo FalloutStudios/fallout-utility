@@ -1,6 +1,4 @@
 import { inspect } from 'util';
-import { isNumber } from './isNumber.js';
-import { trimChars } from './trimChar.js';
 
 import chalk from 'chalk';
 import fs from 'fs';
@@ -102,23 +100,15 @@ export class Logger {
         const dir = path.dirname(fileName);
         const file = path.basename(fileName);
 
-        let writeHeader = false;
         fs.mkdirSync(dir, { recursive: true });
 
         if(fs.existsSync(fileName) && !overwriteOldFile) {
-            const header = this.parseLogHeader(fileName);
-            if (header) {
-                const date = `${header.date.toDateString()} - ${header.date.getHours()}-${header.date.getMinutes()}-${header.date.getSeconds()}-${header.date.getMilliseconds()}`;
-                fs.renameSync(fileName, path.join(dir, `${date}${path.extname(file) ?? '.log'}`));
-            } else {
-                fs.rmSync(fileName, { recursive: true, force: true });
-            }
-
-            writeHeader = true;
+            const fileStat = fs.lstatSync(fileName);
+            const date = `${fileStat.birthtime.toDateString()} - ${fileStat.birthtime.getHours()}-${fileStat.birthtime.getMinutes()}-${fileStat.birthtime.getSeconds()}-${fileStat.birthtime.getMilliseconds()}`;
+            fs.renameSync(fileName, path.join(dir, `${date}${path.extname(file) ?? '.log'}`));
         }
 
         this.setWriteStream(fs.createWriteStream(fileName));
-        if (writeHeader) this.writeStream!.write(this.createLogHeader(file));
 
         return this;
     }
@@ -136,35 +126,6 @@ export class Logger {
 
     public setEnableDebugMode(enable: boolean): void {
         this.enableDebugMode = !!enable;
-    }
-
-    private parseLogHeader(file: string): { date: Date, file: string }|undefined {
-        if (!file) throw new TypeError('file is not defined');
-        if (!fs.existsSync(file)) throw new TypeError('file does not exists');
-
-        let log: string|string[] = fs.readFileSync(file, 'utf-8');
-            log = log.split(`=`.repeat(20))[0] ?? '';
-
-        if (!log) return undefined;
-
-        log = log.split('\n');
-
-        const time = (log[0].startsWith(`Time: `) ? trimChars(log[0], `Time: `) : null);
-        const originalFile = (log[0].startsWith(`File: `) ? trimChars(log[0], `File: `) : null) ?? file;
-
-        return {
-            date: new Date(isNumber(Number(time)) ? Number(time) : Date.now() - 1),
-            file: originalFile
-        }
-    }
-
-    private createLogHeader(file: string): string {
-        if (!file) throw new TypeError('file is not defined');
-
-        return  `Time: ${new Date().getTime()}\n` +
-                `File: ${file}\n` +
-                `=`.repeat(20) +
-                `\n`
     }
 
     private parseLogMessage(messages: any[], level: LogLevels): void {
