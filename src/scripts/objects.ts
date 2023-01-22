@@ -1,5 +1,5 @@
 import { replaceAll } from './strings';
-import { RestOrArray } from '../types';
+import { JSONEncodable, RestOrArray } from '../types';
 import { randomInt } from './numbers';
 
 /**
@@ -84,4 +84,12 @@ export function isClass<T>(object: any): object is T {
 
     const isPrototypeClassConstructor = object.prototype.constructor && object.prototype.constructor.toString && object.prototype.constructor.toString().substring(0, 5) === 'class';
     return isClassConstructor || isPrototypeClassConstructor;
+}
+
+/**
+ * Checks if an object is JSON encodable or not
+ * @param maybeEncodable Object to check
+ */
+export function isJSONEncodable<T>(maybeEncodable: any): maybeEncodable is JSONEncodable<T> {
+    return maybeEncodable !== null && typeof maybeEncodable === 'object' && 'toJSON' in maybeEncodable;
 }
