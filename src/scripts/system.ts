@@ -1,7 +1,6 @@
 import operatingSystem  from 'os';
 import inspector from 'inspector';
 import _path from 'path';
-import { inspect } from 'util';
 import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 export enum OS {
@@ -68,4 +67,12 @@ export function createReadFile<T>(filePath: string, defaultContent: T, options?:
 
     const fileData = readFileSync(filePath, options?.encoding);
     return options?.formatReadData ? options.formatReadData(fileData, defaultContent) : fileData;
+}
+
+/**
+ * Checks if a string is a valid IPv4
+ * @param ip String to check
+ */
+export function isValidIPv4(ip: string): boolean {
+    return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip);
 }
