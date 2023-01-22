@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { Logger, LoggerLevel } from 'fallout-utility';
+import { Logger, LoggerLevel, unpromisify } from 'fallout-utility';
+import { setTimeout } from 'timers/promises';
 
 const logger = new Logger({
     name: 'Hi',
@@ -8,5 +9,5 @@ const logger = new Logger({
     }
 });
 
-logger.logFile('./logs/latest.log');
-logger.err(require('fallout-utility'));
+logger.logToFile('./logs/latest.log');
+logger.err(await import('fallout-utility'));
