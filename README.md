@@ -1,34 +1,47 @@
 # Fallout-utility
-Utility module for Fallout repositories
+Utility package for FalloutStudios projects
 
 ```
 npm i fallout-utility
+yarn add fallout-utility
+pnpm add fallout-utility
 ```
 
 ### Quick start
+<details>
+    <summary>CommonJs</summary>
+
 ```js
 const util = require("fallout-utility");
 ```
-
-### Get version
-```js
-console.log(util.version);
-```
-
-### Example
+</details>
+<details>
+    <summary>ES Modules</summary>
 
 ```js
-const { Logger, input, version } = require('../index.js');
-
-const log = new Logger();
-log.log('Fallout util v' + version);
-
-var question = input("What is your name? ");
-log.log("Your name is " + question);
+import utils from "fallout-utility";
 ```
+</details>
 
-```yml
-1: [INFO] Fallout util v1.2.7
-2: What is your name? AMOGUS
-3: [INFO] Your name is AMOGUS
+### Logger Usage
+
+```js
+import { Logger, version } from 'fallout-utility';
+
+const logger = new Logger();
+
+// Log to file
+logger.logToFile('./logs/latest.log');
+
+// Logs like console.log but also puts content to a file
+logger.log('Fallout util v' + version);
+
+// Other log methods
+logger.warn(`Warning!`); // alias for logger.warning
+logger.warning(`Warning!`);
+
+logger.err(`Error!`); // alias for logger.error
+logger.error(`Error!`);
+
+logger.debug(`Debug!`); // Logs messages only on debug mode
 ```
