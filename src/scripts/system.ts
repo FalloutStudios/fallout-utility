@@ -43,6 +43,9 @@ export function isDebugging(): boolean {
     return !!inspector.url() || /--debug|--inspect/g.test(process.execArgv.join(''));
 }
 
+/**
+ * @deprecated This is a dumb idea (Already implemented in path module)
+ */
 export const path = getOperatingSystem() === OS.WINDOWS ? _path.win32 : _path.posix;
 
 export interface CreateNewFileOptions<T> {

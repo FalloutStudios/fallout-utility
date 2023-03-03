@@ -74,9 +74,9 @@ export function splitString(string: string, removeQuotations: boolean = false, s
  * @param find Strings to find
  * @param replace Replacement strings
  */
-export function replaceAll (string: string, find: string[], replace: string[]): string;
-export function replaceAll (string: string, find: string, replace: string): string;
-export function replaceAll (string: string, find: string | string[], replace: string | string[]): string {
+export function replaceAll(string: string, find: string[], replace: string[]): string;
+export function replaceAll(string: string, find: string, replace: string): string;
+export function replaceAll(string: string, find: string | string[], replace: string | string[]): string {
     if (typeof find === 'string') find = [find];
     if (typeof replace === 'string') replace = [replace];
     if (find.length !== replace.length) throw new TypeError(`${chalk.yellow('find')} and ${chalk.yellow('replace')} parameters must be of the same length`);

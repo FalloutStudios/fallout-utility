@@ -1,9 +1,10 @@
-import { WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Awaitable } from '../../types';
-import { isDebugging, path } from '../system';
+import { isDebugging } from '../system';
 import { InspectOptions, inspect } from 'util';
 import stripAnsi from 'strip-ansi';
+import path from 'path';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -99,7 +100,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.emit('debug', message);
     }
 
-    public logToFile(filePath: string, overwriteOldFile: boolean = false): this {
+    public logToFile(filePath: string, overwriteOldFile: boolean = false, renameFileName?: string|((stat: Stats) => string)): this {
         if (this.writeStream) throw new Error('Logger already has an open file write stream.');
 
         const filePathInfo = path.parse(filePath);
@@ -110,7 +111,11 @@ export class Logger extends TypedEmitter<LoggerEvents> {
             const fileInfo = lstatSync(filePath);
             const dateFormat = `${fileInfo.birthtime.toDateString()} - ${fileInfo.birthtime.getHours()}-${fileInfo.birthtime.getMinutes()}-${fileInfo.birthtime.getSeconds()}-${fileInfo.birthtime.getMilliseconds()}`;
 
-            renameSync(filePath, path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}`));
+            renameSync(filePath, path.join(filePathInfo.dir, renameFileName
+                ? typeof renameFileName === 'string'
+                    ? renameFileName
+                    : renameFileName(fileInfo)
+                : `${dateFormat}${filePathInfo.ext}`));
         }
 
         this.setWriteStream(createWriteStream(filePath));
