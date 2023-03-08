@@ -44,7 +44,7 @@ export function startsWith(string: string, ...find: RestOrArray<string>): boolea
  * Limit text to a certain number of characters with a suffix
  */
 export function limitString(string: string = '', limit: number = 0, endsWith: string|undefined = '...'): string {
-    return string.length >= length ? string.slice(0, length) + (endsWith ?? '') : string;
+    return string.length >= limit ? string.slice(0, limit) + (endsWith ?? '') : string;
 }
 
 /**
