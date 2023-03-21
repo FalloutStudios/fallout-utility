@@ -1,3 +1,4 @@
+export * from './scripts/classes/Encryption';
 export * from './scripts/classes/Logger';
 export * from './scripts/cli';
 export * from './scripts/commands';

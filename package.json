@@ -4,19 +4,14 @@
   "version": "2.2.1",
   "license": "MIT",
   "type": "commonjs",
-  "main": "./dist/lib/index.js",
-  "module": "./dist/lib/esm.mjs",
-  "types": "./dist/types/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/esm.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/lib/esm.mjs"
-      },
-      "require": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/lib/index.js"
-      }
+      "import": "./dist/esm.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "keywords": [
@@ -54,10 +49,10 @@
     "tiny-typed-emitter": "^2.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
+    "@types/node": "^18.15.5",
     "@types/prompt-sync": "^4.2.0",
     "fallout-utility": "./",
     "rimraf": "^3.0.2",
-    "typescript": "^4.9.4"
+    "typescript": "^5.0.2"
   }
 }
