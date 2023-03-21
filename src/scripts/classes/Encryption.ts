@@ -96,19 +96,19 @@ export class Encryption {
         const encrypt = new Encryption({ secret });
         const encrypted = encrypt.encrypt(value);
 
-        return Buffer.from(JSON.stringify({
-            salt: encrypted.salt,
-            iv: encrypted.iv,
-            tag: encrypted.tag,
-            encrypted: encrypted.encrypted
-        }), 'utf-8').toString(encoding ?? 'base64url');
+        return Buffer.from(`${encodeURIComponent(encrypted.salt)} ${encodeURIComponent(encrypted.iv)} ${encodeURIComponent(encrypted.tag)} ${encodeURIComponent(encrypted.encrypted)}`, 'utf-8').toString(encoding ?? 'base64url');
     }
 
     public static decrypt(encrypted: string, secret: string, encoding?: BufferEncoding): string {
-        const data: Pick<EncryptionData, 'salt' | 'iv' | 'tag' | 'encrypted'> = JSON.parse(Buffer.from(encrypted, encoding ?? 'base64url').toString('utf-8'));
+        const data = Buffer.from(encrypted, encoding ?? 'base64url').toString('utf-8').split(' ') as [slat: string, iv: string, tag: string, encrypted: string];
 
         const encrypt = new Encryption({ secret });
-        const decrypted = encrypt.decrypt(data);
+        const decrypted = encrypt.decrypt({
+            salt: data[0],
+            iv: data[1],
+            tag: data[2],
+            encrypted: data[3]
+        });
 
         return decrypted.decrypted;
     }

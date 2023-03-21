@@ -51,6 +51,7 @@
   "devDependencies": {
     "@types/node": "^18.15.5",
     "@types/prompt-sync": "^4.2.0",
+    "cryptr": "^6.2.0",
     "fallout-utility": "./",
     "rimraf": "^3.0.2",
     "typescript": "^5.0.2"
