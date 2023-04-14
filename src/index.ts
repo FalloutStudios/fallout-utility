@@ -1,5 +1,6 @@
 export * from './scripts/classes/Encryption';
 export * from './scripts/classes/Logger';
+export * from './scripts/classes/TypedEmitter';
 export * from './scripts/cli';
 export * from './scripts/commands';
 export * from './scripts/numbers';
