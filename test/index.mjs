@@ -1,11 +1,10 @@
-import chalk from 'chalk';
-import { Logger, LoggerLevel, unpromisify } from 'fallout-utility';
-import { setTimeout } from 'timers/promises';
+import kleur from 'kleur';
+import { Logger, LoggerLevel } from 'fallout-utility';
 
 const logger = new Logger({
     name: 'Hi',
     formatMessageLines: {
-        [LoggerLevel.WARN]: message => chalk.red(message)
+        [LoggerLevel.WARN]: message => kleur.red(message)
     }
 });
 

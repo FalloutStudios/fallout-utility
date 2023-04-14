@@ -1,6 +1,7 @@
 import { replaceAll } from './strings';
 import { JSONEncodable, RestOrArray } from '../types';
 import { randomInt } from './numbers';
+import kleur from 'kleur';
 
 /**
  * Normalize an array given from a rest param
@@ -17,7 +18,7 @@ export function normalizeArray<T>(array: RestOrArray<T>): T[] {
 export function getRandomKey<T extends unknown[]>(obj: T): T[0];
 export function getRandomKey<T extends {}>(obj: T): keyof T;
 export function getRandomKey<T = unknown>(obj: any): T {
-    if (typeof obj !== "object") throw new Error(`${typeof obj} is not an object`);
+    if (typeof obj !== "object") throw new TypeError(`type ${kleur.cyan(typeof obj)} is not an object.`);
 
     const keys = Array.isArray(obj) ? obj : Object.keys(obj as unknown[]);
     return keys[randomInt(0, (keys.length - 1))];

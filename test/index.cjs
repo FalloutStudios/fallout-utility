@@ -1,10 +1,10 @@
-const chalk = require('chalk');
+const kleur = require('kleur');
 const { Logger, LoggerLevel } = require('fallout-utility');
 
 const logger = new Logger({
     name: 'Hi',
     formatMessageLines: {
-        [LoggerLevel.WARN]: message => chalk.red(message)
+        [LoggerLevel.WARN]: message => kleur.red(message)
     }
 });
 

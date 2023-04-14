@@ -1,6 +1,6 @@
 import { normalizeArray } from './objects';
 import { RestOrArray } from '../types';
-import chalk from 'chalk';
+import kleur from 'kleur';
 
 /**
  * Escape a string to be used as a regular expression
@@ -79,7 +79,7 @@ export function replaceAll(string: string, find: string, replace: string): strin
 export function replaceAll(string: string, find: string | string[], replace: string | string[]): string {
     if (typeof find === 'string') find = [find];
     if (typeof replace === 'string') replace = [replace];
-    if (find.length !== replace.length) throw new TypeError(`${chalk.yellow('find')} and ${chalk.yellow('replace')} parameters must be of the same length`);
+    if (find.length !== replace.length) throw new TypeError(`${kleur.cyan('find')} and ${kleur.cyan('replace')} parameters must be of the same length.`);
 
     for (let i = 0; i < find.length; i++) {
         string = string.replace(new RegExp(find[i], 'g'), replace[i]);

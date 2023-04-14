@@ -15,13 +15,14 @@ export enum LoggerLevel {
 
 export interface LoggerOptions {
     formatMessageLines?: {
-        [level: number]: (message: string, logger: Logger) => string;
+        [level: number]: ((message: string, logger: Logger) => string)|undefined;
     },
-    objectInspectOptions?: InspectOptions;
+    objectInspectOptions?: InspectOptions|null;
     enableDebugmode?: boolean|null;
-    forceEmitLogEvents?: boolean;
-    writeStream?: WriteStream;
-    name?: string;
+    forceEmitLogEvents?: boolean|null;
+    writeStream?: WriteStream|null;
+    name?: string|null;
+    parent?: Logger|null;
 }
 
 export interface LoggerEvents {
@@ -32,6 +33,8 @@ export interface LoggerEvents {
 }
 
 export class Logger extends TypedEmitter<LoggerEvents> {
+    readonly parent?: Logger;
+
     public formatMessageLines: Exclude<LoggerOptions['formatMessageLines'], undefined>;
     public objectInspectOptions?: InspectOptions;
     public enableDebugmode: boolean|null;
@@ -40,7 +43,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     public name?: string;
 
     get isDebugging() {
-        return this.enableDebugmode || isDebugging(); 
+        return this.enableDebugmode || isDebugging();
     }
 
     constructor(options?: LoggerOptions) {
@@ -50,8 +53,9 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.objectInspectOptions = options?.objectInspectOptions ?? { colors: true };
         this.enableDebugmode = options?.enableDebugmode ?? null;
         this.forceEmitLogEvents = options?.forceEmitLogEvents ?? false;
-        this.writeStream = options?.writeStream;
-        this.name = options?.name;
+        this.writeStream = options?.writeStream || undefined;
+        this.name = options?.name || undefined;
+        this.parent = options?.parent || undefined;
 
         this.info = this.info.bind(this);
         this.warn = this.warn.bind(this);
@@ -66,6 +70,13 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.setWriteStream = this.setWriteStream.bind(this);
         this.closeWriteStream = this.closeWriteStream.bind(this);
         this.clone = this.clone.bind(this);
+    }
+
+    public emit<U extends keyof LoggerEvents>(event: U, ...args: Parameters<LoggerEvents[U]>): boolean {
+        const emitted = super.emit(event, ...args);
+        if (this.parent) this.parent.emit(event, ...args);
+
+        return emitted;
     }
 
     public info(...message: any[]): void { this.log(...message); }
@@ -101,7 +112,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     }
 
     public logToFile(filePath: string, overwriteOldFile: boolean = false, renameFileName?: string|((stat: Stats) => string)): this {
-        if (this.writeStream) throw new Error('Logger already has an open file write stream.');
+        if (this.writeStream) throw new Error('Logger write stream already exist.');
 
         const filePathInfo = path.parse(filePath);
 
@@ -133,8 +144,8 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         return this;
     }
 
-    public setWriteStream(writeStream: WriteStream): this {
-        if (this.writeStream) throw new Error('Logger already has an open file write stream.');
+    public setWriteStream(writeStream: WriteStream, close: boolean = true): this {
+        if (this.writeStream && close) this.writeStream.close();
 
         this.writeStream = writeStream;
         return this;
