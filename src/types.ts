@@ -14,4 +14,4 @@ export type PartialDeep<T> = T extends object ? {
 
 export type RestOrArray<T> = T[]|T[][];
 export type Awaitable<T> = T|PromiseLike<T>;
-export type Noting<T> = T;
+export type Nothing<T> = T;
