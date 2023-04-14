@@ -3,8 +3,8 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import { Awaitable } from '../../types';
 import { isDebugging } from '../system';
 import { InspectOptions, inspect } from 'util';
-import stripAnsi from 'strip-ansi';
 import path from 'path';
+import stripAnsi from 'strip-ansi';
 
 export enum LoggerLevel {
     INFO = 1,
