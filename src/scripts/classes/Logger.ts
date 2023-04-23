@@ -1,10 +1,9 @@
 import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { Awaitable } from '../../types';
 import { isDebugging } from '../system';
 import { InspectOptions, inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
+import { TypedEmitter } from './TypedEmitter';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -26,10 +25,10 @@ export interface LoggerOptions {
 }
 
 export interface LoggerEvents {
-    log: (message: string) => Awaitable<void>;
-    warn: (message: string) => Awaitable<void>;
-    err: (message: string) => Awaitable<void>;
-    debug: (message: string) => Awaitable<void>;
+    log: [message: string];
+    warn: [message: string];
+    err: [message: string];
+    debug: [message: string];
 }
 
 export class Logger extends TypedEmitter<LoggerEvents> {
@@ -72,9 +71,11 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.clone = this.clone.bind(this);
     }
 
-    public emit<U extends keyof LoggerEvents>(event: U, ...args: Parameters<LoggerEvents[U]>): boolean {
-        const emitted = super.emit(event, ...args);
-        if (this.parent) this.parent.emit(event, ...args);
+    public emit<K extends keyof LoggerEvents>(eventName: K, ...args: LoggerEvents[K]): boolean;
+    public emit<K extends string | symbol>(eventName: K, ...args: any): boolean;
+    public emit(eventName: string|symbol, ...args: any[]): boolean {
+        const emitted = super.emit(eventName, ...args);
+        if (this.parent) this.parent.emit(eventName, ...args);
 
         return emitted;
     }
