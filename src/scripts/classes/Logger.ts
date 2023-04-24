@@ -4,6 +4,7 @@ import { InspectOptions, inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { TypedEmitter } from './TypedEmitter';
+import ansiRegex from 'ansi-regex';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -170,10 +171,19 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         const formatter = (this.formatMessageLines[level] ?? (e => e));
         if (!messages.length) this._write(formatter('', this), level);
 
-        const lines = messages.map(msg => typeof msg === 'string' ? msg : inspect(msg, this.objectInspectOptions))
+        let lastAnsi = '';
+        let lines = messages.map(msg => typeof msg === 'string' ? msg : inspect(msg, this.objectInspectOptions))
             .join(' ')
-            .split('\n')
-            .map(msg => formatter(msg, this));
+            .split('\n');
+
+            lines = lines.map((msg, index) => {
+                const previousLine: string|undefined = lines[index - 1];
+                if (!previousLine) return formatter(msg, this);
+
+                lastAnsi = previousLine.match(ansiRegex())?.pop() ?? lastAnsi;
+
+                return formatter(lastAnsi + msg, this);
+            });
 
         return lines;
     }
