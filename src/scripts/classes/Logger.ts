@@ -1,10 +1,13 @@
-import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'fs';
 import { isDebugging } from '../system';
-import { InspectOptions, inspect } from 'util';
+import { InspectOptions, deprecate, inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { TypedEmitter } from './TypedEmitter';
 import ansiRegex from 'ansi-regex';
+import { Awaitable } from '../../types';
+import { gzipSync } from 'zlib';
+import { replaceAll } from '../strings';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -14,6 +17,10 @@ export enum LoggerLevel {
 }
 
 export interface LoggerOptions {
+    formatMessage?: (message: string, level: LoggerLevel, logger: Logger) => string;
+    /**
+     * @deprecated Use {@link LoggerOptions.formatMessage} instead
+     */
     formatMessageLines?: {
         [level: number]: ((message: string, logger: Logger) => string)|undefined;
     },
@@ -23,6 +30,12 @@ export interface LoggerOptions {
     writeStream?: WriteStream|null;
     name?: string|null;
     parent?: Logger|null;
+}
+
+export interface LoggerFileWriteStreamOptions {
+    file: string;
+    renameOldFile?: boolean;
+    handleOldFile?: (file: string) => Awaitable<void>;
 }
 
 export interface LoggerEvents {
@@ -35,6 +48,7 @@ export interface LoggerEvents {
 export class Logger extends TypedEmitter<LoggerEvents> {
     readonly parent?: Logger;
 
+    public formatMessage?: (message: string, level: LoggerLevel, logger: Logger) => string;
     public formatMessageLines: Exclude<LoggerOptions['formatMessageLines'], undefined>;
     public objectInspectOptions?: InspectOptions;
     public enableDebugmode: boolean|null;
@@ -49,6 +63,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     constructor(options?: LoggerOptions) {
         super();
 
+        this.formatMessage = options?.formatMessage;
         this.formatMessageLines = options?.formatMessageLines ?? {};
         this.objectInspectOptions = options?.objectInspectOptions ?? { colors: true };
         this.enableDebugmode = options?.enableDebugmode ?? null;
@@ -64,7 +79,8 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.warning = this.warning.bind(this);
         this.error = this.error.bind(this);
         this.debug = this.debug.bind(this);
-        this.logToFile = this.logToFile.bind(this);
+        this.logToFile = deprecate(this.logToFile.bind(this), "'<Logger>.logToFile' is deprecated. Use '<Logger>.createFileWriteStream()' instead.");
+        this.createFileWriteStream = this.createFileWriteStream.bind(this);
         this.setDebugMode = this.setDebugMode.bind(this);
         this.setName = this.setName.bind(this);
         this.setWriteStream = this.setWriteStream.bind(this);
@@ -113,14 +129,17 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         this.emit('debug', message);
     }
 
-    public logToFile(filePath: string, overwriteOldFile: boolean = false, renameFileName?: string|((stat: Stats) => string)): this {
+    /**
+     * @deprecated Use {@link Logger.createFileWriteStream} instead
+     */
+    public logToFile(filePath: string, keepOldFile: boolean = false, renameFileName?: string|((stat: Stats) => string)): this {
         if (this.writeStream) throw new Error('Logger write stream already exist.');
 
         const filePathInfo = path.parse(filePath);
 
         mkdirSync(filePathInfo.dir, { recursive: true });
 
-        if (existsSync(filePath) && !overwriteOldFile) {
+        if (existsSync(filePath) && !keepOldFile) {
             const fileInfo = lstatSync(filePath);
             const dateFormat = `${fileInfo.birthtime.toDateString()} - ${fileInfo.birthtime.getHours()}-${fileInfo.birthtime.getMinutes()}-${fileInfo.birthtime.getSeconds()}-${fileInfo.birthtime.getMilliseconds()}`;
 
@@ -132,6 +151,33 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         }
 
         this.setWriteStream(createWriteStream(filePath));
+
+        return this;
+    }
+
+    public async createFileWriteStream(options: LoggerFileWriteStreamOptions): Promise<this> {
+        if (this.writeStream) throw new Error('Logger write stream already exist.');
+
+        const file = path.resolve(options.file);
+        const filePathInfo = path.parse(file);
+
+        mkdirSync(filePathInfo.dir, { recursive: true });
+
+        if (existsSync(file) && options.renameOldFile !== false) {
+            if (options.handleOldFile) {
+                await Promise.resolve(options.handleOldFile(file));
+            } else {
+                const date = lstatSync(file).birthtime.toISOString();
+                const dateFormat = `${date.substring(0, 10)} ${replaceAll(date.substring(11, 19), ':', '-')}`;
+
+                const data = gzipSync(readFileSync(file, 'utf-8'));
+
+                writeFileSync(path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}.gz`), data);
+                rmSync(file, { force: true, recursive: true });
+            }
+        }
+
+        this.setWriteStream(createWriteStream(options.file));
 
         return this;
     }
@@ -168,7 +214,10 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     }
 
     protected _print(messages: any[], level: LoggerLevel): string[] {
-        const formatter = (this.formatMessageLines[level] ?? (e => e));
+        const formatter = this.formatMessage
+            ? (message: string) => (this.formatMessage!)(message, level, this)
+            : this.formatMessageLines[level] ?? (e => e);
+
         if (!messages.length) this._write(formatter('', this), level);
 
         let lastAnsi = '';
