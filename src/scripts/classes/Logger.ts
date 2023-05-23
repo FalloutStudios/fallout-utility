@@ -1,4 +1,4 @@
-import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'fs';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs';
 import { isDebugging } from '../system';
 import { InspectOptions, deprecate, inspect } from 'util';
 import path from 'path';
@@ -169,11 +169,12 @@ export class Logger extends TypedEmitter<LoggerEvents> {
             } else {
                 const date = lstatSync(file).birthtime.toISOString();
                 const dateFormat = `${date.substring(0, 10)} ${replaceAll(date.substring(11, 19), ':', '-')}`;
+                const newFile = path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}.gz`);
 
                 const data = gzipSync(readFileSync(file, 'utf-8'));
 
-                writeFileSync(path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}.gz`), data);
-                rmSync(file, { force: true, recursive: true });
+                renameSync(file, newFile);
+                writeFileSync(newFile, data);
             }
         }
 
