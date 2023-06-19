@@ -7,7 +7,7 @@ export interface EventEmitterOptions {
     captureRejections?: boolean | undefined;
 }
 
-export interface TypedEmitter<Events extends Record<string | symbol, any>> extends EventEmitter {
+export interface TypedEmitter<Events extends Record<string | symbol, any> = Record<string | symbol, any>> extends EventEmitter {
     listenerCount(eventName: keyof Events): number;
     listenerCount(eventName: string|symbol): number;
 
