@@ -1,4 +1,4 @@
-import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync } from 'fs';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
 import { isDebugging } from '../system';
 import { InspectOptions, deprecate, inspect } from 'util';
 import path from 'path';
@@ -7,8 +7,7 @@ import { TypedEmitter } from './TypedEmitter';
 import ansiRegex from 'ansi-regex';
 import { Awaitable } from '../../types';
 import { gzipSync } from 'zlib';
-import { replaceAll } from '../strings';
-import { mkdir, rename, rm, stat, writeFile } from 'fs/promises';
+import { mkdir, readFile, rename, stat, writeFile } from 'fs/promises';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -157,31 +156,38 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     }
 
     public async createFileWriteStream(options: LoggerFileWriteStreamOptions): Promise<this> {
-        if (this.writeStream) throw new Error('Logger write stream already exist.');
+        if (this.writeStream?.write) throw new Error('Logger write stream already exist.');
 
         const file = path.resolve(options.file);
         const filePathInfo = path.parse(file);
+        const isExists = existsSync(file);
 
-        await mkdir(filePathInfo.dir, { recursive: true });
+        let oldFileHandled = false;
 
-        if (existsSync(file) && options.renameOldFile !== false) {
+        if (isExists && options.renameOldFile !== false) {
             if (options.handleOldFile) {
                 await Promise.resolve(options.handleOldFile(file));
             } else {
-                const date = (await stat(file)).birthtime.toISOString();
-                const dateFormat = `${date.substring(0, 10)} ${replaceAll(date.substring(11, 19), ':', '-')}`;
+                const lines = (await readFile(file, 'utf-8')).split('\n');
+                const header = lines[0]?.startsWith(`<[LOG - HEADER]> `) ? lines.shift() : undefined;
+                const date = header ? new Date(Number(header.split('> ')[1])) : (await stat(file)).birthtime;
+                const dateFormat = `${date.toISOString().substring(0, 10)} ${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}-${date.getMilliseconds()}`;
                 const newFile = path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}.gz`);
 
-                const data = gzipSync(readFileSync(file, 'utf-8'));
+                const data = gzipSync(Buffer.from(lines.join('\n')));
 
+                await writeFile(file, data);
                 await rename(file, newFile);
-                await writeFile(newFile, data);
-                await rm(options.file);
             }
+
+            oldFileHandled = true;
+        } else {
+            await mkdir(filePathInfo.dir, { recursive: true });
         }
 
-        this.setWriteStream(createWriteStream(options.file));
+        this.setWriteStream(createWriteStream(file, { encoding: 'utf-8' }));
 
+        if (isExists && oldFileHandled) this.writeStream?.write(`<[LOG - HEADER]> ${Date.now()}\n`, 'utf-8');
         return this;
     }
 

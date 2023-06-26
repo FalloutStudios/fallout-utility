@@ -1,16 +1,17 @@
-import operatingSystem  from 'os';
+import operatingSystem from 'os';
 import inspector from 'inspector';
-import _path from 'path';
+import _path, { dirname } from 'path';
 import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { mkdir, readFile, writeFile } from 'fs/promises';
 
 export enum OS {
-    WINDOWS,
-    LINUX,
-    MACOS,
-    ANDROID,
-    OPENBSD,
-    FREEBSD,
-    OTHER
+    WINDOWS = "win32",
+    LINUX = "linux",
+    MACOS = "darwin",
+    ANDROID = "android",
+    OPENBSD = "openbsd",
+    FREEBSD = "freebsd",
+    OTHER = "other"
 }
 
 /**
@@ -54,6 +55,12 @@ export interface CreateNewFileOptions<T> {
     encoding?: EncodingOption;
 }
 
+export interface CreateNewFileAsyncOptions<T> {
+    formatReadData?: (data: string|Buffer, defaultContent: T) => Promise<T>|T;
+    encodeFileData?: (data: T) => any|Promise<any>;
+    encoding?: EncodingOption;
+}
+
 /**
  * Creates file if doesn't exists and reads the file
  * @param filePath File path
@@ -64,12 +71,30 @@ export function createReadFile<T>(filePath: string, defaultContent: T, options?:
 export function createReadFile<T>(filePath: string, defaultContent: T, options?: CreateNewFileOptions<T>): string|Buffer;
 export function createReadFile<T>(filePath: string, defaultContent: T, options?: CreateNewFileOptions<T>): string|Buffer|T {
     if (!existsSync(filePath)) {
-        mkdirSync(path.dirname(filePath), { recursive: true });
+        mkdirSync(dirname(filePath), { recursive: true });
         writeFileSync(filePath, options?.encodeFileData ? options?.encodeFileData(defaultContent) : String(defaultContent), options?.encoding);
     }
 
     const fileData = readFileSync(filePath, options?.encoding);
     return options?.formatReadData ? options.formatReadData(fileData, defaultContent) : fileData;
+}
+
+/**
+ * Creates file if doesn't exists and reads the file
+ * @param filePath File path
+ * @param defaultContent Default file content
+ * @param options File create options
+ */
+export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T> & Required<Pick<CreateNewFileAsyncOptions<T>, 'formatReadData'>>): Promise<T>;
+export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T>): Promise<string|Buffer>;
+export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T>): Promise<string|Buffer|T> {
+    if (!existsSync(filePath)) {
+        await mkdir(dirname(filePath), { recursive: true });
+        await writeFile(filePath, options?.encodeFileData ? await Promise.resolve(options?.encodeFileData(defaultContent)) : String(defaultContent), options?.encoding);
+    }
+
+    const fileData = await readFile(filePath, options?.encoding);
+    return options?.formatReadData ? Promise.resolve(options.formatReadData(fileData, defaultContent)) : fileData;
 }
 
 /**
