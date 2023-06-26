@@ -1,4 +1,4 @@
-import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, renameSync } from 'fs';
 import { isDebugging } from '../system';
 import { InspectOptions, deprecate, inspect } from 'util';
 import path from 'path';
@@ -8,6 +8,7 @@ import ansiRegex from 'ansi-regex';
 import { Awaitable } from '../../types';
 import { gzipSync } from 'zlib';
 import { replaceAll } from '../strings';
+import { mkdir, rename, rm, stat, writeFile } from 'fs/promises';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -161,20 +162,21 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         const file = path.resolve(options.file);
         const filePathInfo = path.parse(file);
 
-        mkdirSync(filePathInfo.dir, { recursive: true });
+        await mkdir(filePathInfo.dir, { recursive: true });
 
         if (existsSync(file) && options.renameOldFile !== false) {
             if (options.handleOldFile) {
                 await Promise.resolve(options.handleOldFile(file));
             } else {
-                const date = lstatSync(file).birthtime.toISOString();
+                const date = (await stat(file)).birthtime.toISOString();
                 const dateFormat = `${date.substring(0, 10)} ${replaceAll(date.substring(11, 19), ':', '-')}`;
                 const newFile = path.join(filePathInfo.dir, `${dateFormat}${filePathInfo.ext}.gz`);
 
                 const data = gzipSync(readFileSync(file, 'utf-8'));
 
-                renameSync(file, newFile);
-                writeFileSync(newFile, data);
+                await rename(file, newFile);
+                await writeFile(newFile, data);
+                await rm(options.file);
             }
         }
 
