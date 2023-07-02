@@ -1,8 +1,8 @@
-import operatingSystem from 'os';
-import inspector from 'inspector';
-import _path, { dirname } from 'path';
-import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { mkdir, readFile, writeFile } from 'fs/promises';
+import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import _path, { dirname } from 'node:path';
+import inspector from 'node:inspector';
+import operatingSystem from 'node:os';
 
 export enum OS {
     WINDOWS = "win32",

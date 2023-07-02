@@ -1,4 +1,4 @@
-import { CipherGCMTypes, createCipheriv, createDecipheriv, pbkdf2Sync, randomBytes } from 'crypto';
+import { CipherGCMTypes, createCipheriv, createDecipheriv, pbkdf2Sync, randomBytes } from 'node:crypto';
 
 export interface EncryptionOptions {
     secret: string;

@@ -1,13 +1,12 @@
-import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'fs';
-import { isDebugging } from '../system';
-import { InspectOptions, deprecate, inspect } from 'util';
-import path from 'path';
-import stripAnsi from 'strip-ansi';
+import { Stats, WriteStream, createWriteStream, existsSync, lstatSync, mkdirSync, renameSync } from 'node:fs';
+import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { InspectOptions, deprecate, inspect, stripVTControlCharacters } from 'node:util';
 import { TypedEmitter } from './TypedEmitter';
-import ansiRegex from 'ansi-regex';
 import { Awaitable } from '../../types';
-import { gzipSync } from 'zlib';
-import { mkdir, readFile, rename, stat, writeFile } from 'fs/promises';
+import { isDebugging } from '../system';
+import { gzipSync } from 'node:zlib';
+import ansiRegex from 'ansi-regex';
+import path from 'node:path';
 
 export enum LoggerLevel {
     INFO = 1,
@@ -265,7 +264,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         }
 
         if (logToFile) {
-            const strippedMessage = stripAnsi(message);
+            const strippedMessage = stripVTControlCharacters(message);
             this.writeStream?.write(`${strippedMessage}\n`, 'utf-8');
         }
     }
