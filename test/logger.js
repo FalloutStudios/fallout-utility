@@ -1,4 +1,4 @@
-import { Logger, LoggerLevel } from 'fallout-utility';
+import { Logger, LoggerLevel, kleur } from 'fallout-utility';
 
 const logger = new Logger({
     name: 'Hello',
@@ -9,6 +9,6 @@ await logger.createFileWriteStream({
     file: './logs/latest.log'
 });
 
-logger.log(`Log`);
-logger.warn(`Warn`);
-logger.err(`Err`);
+logger.log(kleur.cyan(`Log`));
+logger.warn(kleur.yellow(`Warn`));
+logger.err(kleur.red(`Err`));
