@@ -13,4 +13,4 @@ export type Awaitable<T> = T|PromiseLike<T>;
 export type Nothing<T> = T;
 export type Combine<A, B> = Omit<A, keyof B> & Omit<B, keyof A> & { [K in keyof A & keyof B]: A[K] | B[K] };
 
-export * from 'type-fest';
+export type * from 'type-fest';
