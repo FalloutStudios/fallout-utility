@@ -1,3 +1,5 @@
+import kleur from 'kleur';
+
 export * from './scripts/classes/Encryption';
 export * from './scripts/classes/Logger';
 export * from './scripts/classes/TypedEmitter';
@@ -9,3 +11,5 @@ export * from './scripts/strings';
 export * from './scripts/system';
 
 export * from './types';
+
+export { kleur };
