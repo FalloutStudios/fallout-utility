@@ -26,7 +26,7 @@ import utils from "fallout-utility";
 ### Logger Usage
 
 ```js
-import { Logger, version, kleur } from 'fallout-utility';
+import { Logger } from 'fallout-utility/Logger';
 
 const logger = new Logger();
 
@@ -36,7 +36,7 @@ await logger.createFileWriteStream({
 });
 
 // Logs like console.log but also puts content to a file
-logger.log('Fallout util '+ kleur.blue('v' + version));
+logger.log('Fallout util');
 
 // Other log methods
 logger.warn(`Warning!`); // alias for logger.warning
