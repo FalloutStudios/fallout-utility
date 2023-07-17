@@ -12,6 +12,46 @@
       "import": "./dist/esm.mjs",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "default": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./Encryption": {
+      "default": "./dist/scripts/classes/Encryption.js",
+      "types": "./dist/scripts/classes/Encryption.d.ts"
+    },
+    "./Logger": {
+      "default": "./dist/scripts/classes/Logger.js",
+      "types": "./dist/scripts/classes/Logger.d.ts"
+    },
+    "./TypedEmitter": {
+      "default": "./dist/scripts/classes/TypedEmitter.js",
+      "types": "./dist/scripts/classes/TypedEmitter.d.ts"
+    },
+    "./cli": {
+      "default": "./dist/scripts/cli.js",
+      "types": "./dist/scripts/cli.d.ts"
+    },
+    "./commands": {
+      "default": "./dist/scripts/commands.js",
+      "types": "./dist/scripts/commands.d.ts"
+    },
+    "./numbers": {
+      "default": "./dist/scripts/numbers.js",
+      "types": "./dist/scripts/numbers.d.ts"
+    },
+    "./objects": {
+      "default": "./dist/scripts/objects.js",
+      "types": "./dist/scripts/objects.d.ts"
+    },
+    "./strings": {
+      "default": "./dist/scripts/strings.js",
+      "types": "./dist/scripts/strings.d.ts"
+    },
+    "./system": {
+      "default": "./dist/scripts/system.js",
+      "types": "./dist/scripts/system.d.ts"
     }
   },
   "keywords": [
@@ -44,7 +84,7 @@
     "ansi-regex": "^5.0.1",
     "kleur": "^4.1.5",
     "prompt-sync": "^4.2.0",
-    "type-fest": "^3.12.0"
+    "type-fest": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

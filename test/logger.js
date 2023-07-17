@@ -1,4 +1,6 @@
-import { Logger, LoggerLevel, kleur } from 'fallout-utility';
+// @ts-check
+import { Logger, LoggerLevel } from 'fallout-utility/Logger';
+import { kleur } from 'fallout-utility/strings';
 
 const logger = new Logger({
     name: 'Hello',

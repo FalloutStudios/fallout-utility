@@ -2,6 +2,8 @@ import { normalizeArray } from './objects';
 import { RestOrArray } from '../types';
 import kleur from 'kleur';
 
+export { kleur };
+
 /**
  * Escape a string to be used as a regular expression
  * @param string Escape regex from this string
