@@ -31,7 +31,9 @@ import { Logger, version, kleur } from 'fallout-utility';
 const logger = new Logger();
 
 // Log to file
-logger.logToFile('./logs/latest.log');
+await logger.createFileWriteStream({
+    file: './logs/latest.log'
+});
 
 // Logs like console.log but also puts content to a file
 logger.log('Fallout util '+ kleur.blue('v' + version));
