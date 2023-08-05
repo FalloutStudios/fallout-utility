@@ -186,7 +186,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
 
         this.setWriteStream(createWriteStream(file, { encoding: 'utf-8' }));
 
-        if (isExists && oldFileHandled) this.writeStream?.write(`<[LOG - HEADER]> ${Date.now()}\n`, 'utf-8');
+        if (isExists && oldFileHandled && !options.handleOldFile) this.writeStream?.write(`<[LOG - HEADER]> ${Date.now()}\n`, 'utf-8');
         return this;
     }
 
@@ -201,8 +201,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     }
 
     public setWriteStream(writeStream: WriteStream, close: boolean = true): this {
-        if (this.writeStream && close) this.writeStream.close();
-
+        if (this.writeStream && close) this.closeWriteStream();
         this.writeStream = writeStream;
         return this;
     }
@@ -265,7 +264,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
 
         if (logToFile) {
             const strippedMessage = stripVTControlCharacters(message);
-            this.writeStream?.write(`${strippedMessage}\n`, 'utf-8');
+            if (this.writeStream && !(this.writeStream.closed || this.writeStream.destroyed)) this.writeStream.write(`${strippedMessage}\n`, 'utf-8');
         }
     }
 }
