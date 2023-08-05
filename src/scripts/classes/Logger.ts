@@ -155,7 +155,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
     }
 
     public async createFileWriteStream(options: LoggerFileWriteStreamOptions): Promise<this> {
-        if (this.writeStream?.write) throw new Error('Logger write stream already exist.');
+        if (this.writeStream && !this.writeStream.closed && !this.writeStream.destroyed) throw new Error('Logger write stream already exist.');
 
         const file = path.resolve(options.file);
         const filePathInfo = path.parse(file);
