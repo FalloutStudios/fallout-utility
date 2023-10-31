@@ -3,8 +3,8 @@
  * Checks if the given value is a finite number
  * @param value Check if this can be a number
  */
-export function isNumber (value: unknown): value is number {
-    return !isNaN(parseFloat(value as any)) && isFinite(value as any);
+export function isNumber (value: unknown): boolean {
+    return !isNaN(parseFloat(String(value))) && isFinite(Number(value));
 }
 
 /**
