@@ -1,6 +1,7 @@
 // @ts-check
 import { Logger, LoggerLevel } from 'fallout-utility/Logger';
 import { kleur } from 'fallout-utility/strings';
+import { getCommand } from 'fallout-utility/commands';
 
 const logger = new Logger({
     name: 'Hello',
@@ -14,3 +15,4 @@ await logger.createFileWriteStream({
 logger.log(kleur.cyan(`Log`));
 logger.warn(kleur.yellow(`Warn`));
 logger.err(kleur.red(`Err`));
+logger.log(getCommand('/google hello bitch "lolo hfjkfghredf"', '/'));

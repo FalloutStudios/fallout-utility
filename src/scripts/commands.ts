@@ -5,6 +5,7 @@ export interface CommandData {
     prefix?: string;
     args: string[];
     raw: string;
+    rawArgs: string;
     separator: string;
 }
 
@@ -20,6 +21,7 @@ export function getCommand(string: string, prefix?: string, separator: string = 
         prefix,
         args: [],
         raw: string,
+        rawArgs: '',
         separator,
     };
 
@@ -27,8 +29,8 @@ export function getCommand(string: string, prefix?: string, separator: string = 
 
     commandData.name = (prefix ? string.slice(prefix.length) : string).trim().split(/\s+/)[0];
 
-    const args = (prefix ? string.slice(prefix.length) : string).trim().split(/\s+/).splice(1).join(' ') || '';
-    commandData.args = args ? splitString(args, true, separator) : [];
+    commandData.rawArgs = (prefix ? string.slice(prefix.length) : string).slice(commandData.name.length).trim() || '';
+    commandData.args = commandData.rawArgs ? splitString(commandData.rawArgs, true, separator) : [];
 
     return commandData;
 }

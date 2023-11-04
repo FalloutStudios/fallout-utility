@@ -1,6 +1,7 @@
 import { normalizeArray } from './objects';
 import { RestOrArray } from '../types';
 import kleur from 'kleur';
+import split from 'split-string';
 
 export { kleur };
 
@@ -56,6 +57,13 @@ export function limitString(string: string = '', limit: number = 0, endsWith: st
  * @param separator Split separator
  */
 export function splitString(string: string, removeQuotations: boolean = false, separator: string = ' '): string[] {
+    return split(string, {
+        brackets: true,
+        quotes: true,
+        separator,
+        keep: (value, state) => value !== '\\' && (value !== '"' || state.prev() === '\\')
+    });
+
     let regex = new RegExp(`(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*)${escapeRegExp(separator)}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`);
 
     const text = string.toString().trim();
@@ -68,6 +76,14 @@ export function splitString(string: string, removeQuotations: boolean = false, s
     }
 
     return newText;
+}
+
+/**
+ * Removes extra spaces from text
+ * @param text Text to remove extra spaces from
+ */
+export function removeUnecessarySpaces(text: string): string {
+    return text.trim().split(' ').filter(Boolean).join(' ');
 }
 
 /**
