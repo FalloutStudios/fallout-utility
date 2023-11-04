@@ -1,5 +1,23 @@
-# Fallout-utility
-Utility package for FalloutStudios projects
+<h1 align="center">
+    fallout-utility
+    <br>
+</h1>
+
+<h3 align="center">
+    <a href="https://npmjs.org/package/fallout-utility">
+        <img src="https://img.shields.io/npm/v/fallout-utility?label=npm">
+    </a>
+    <a href="https://github.com/thenorthsolution/fallout-utility">
+        <img src="https://img.shields.io/npm/dt/fallout-utility?maxAge=3600">
+    </a>
+    <br>
+    <div style="padding-top: 1rem">
+        <a href="https://discord.gg/https://discord.gg/2QTnr78C7R">
+            <img src="https://discord.com/api/guilds/993105237000855592/embed.png?style=banner2">
+        </a>
+    </div>
+</h3>
+
 
 ```
 npm i fallout-utility
