@@ -25,6 +25,10 @@
       "default": "./dist/scripts/classes/Logger.js",
       "types": "./dist/scripts/classes/Logger.d.ts"
     },
+    "./StrictTypedEmitter": {
+      "default": "./dist/scripts/classes/StrictTypedEmitter.js",
+      "types": "./dist/scripts/classes/StrictTypedEmitter.d.ts"
+    },
     "./TypedEmitter": {
       "default": "./dist/scripts/classes/TypedEmitter.js",
       "types": "./dist/scripts/classes/TypedEmitter.d.ts"
