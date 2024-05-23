@@ -1,5 +1,5 @@
 import { EncodingOption, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import _path, { dirname } from 'node:path';
 import inspector from 'node:inspector';
 import operatingSystem from 'node:os';
@@ -88,7 +88,7 @@ export function createReadFile<T>(filePath: string, defaultContent: T, options?:
 export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T> & Required<Pick<CreateNewFileAsyncOptions<T>, 'formatReadData'>>): Promise<T>;
 export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T>): Promise<string|Buffer>;
 export async function createReadFileAsync<T>(filePath: string, defaultContent: T, options?: CreateNewFileAsyncOptions<T>): Promise<string|Buffer|T> {
-    if (!existsSync(filePath)) {
+    if (!(await stat(filePath).catch(() => false))) {
         await mkdir(dirname(filePath), { recursive: true });
         await writeFile(filePath, options?.encodeFileData ? await Promise.resolve(options?.encodeFileData(defaultContent)) : String(defaultContent), options?.encoding);
     }
@@ -100,6 +100,7 @@ export async function createReadFileAsync<T>(filePath: string, defaultContent: T
 /**
  * Checks if a string is a valid IPv4
  * @param ip String to check
+ * @deprecated This is crazy
  */
 export function isValidIPv4(ip: string): boolean {
     return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip);
