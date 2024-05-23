@@ -63,19 +63,6 @@ export function splitString(string: string, removeQuotations: boolean = false, s
         separator,
         keep: (value, state) => value !== '\\' && (value !== '"' || state.prev() === '\\')
     });
-
-    let regex = new RegExp(`(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*)${escapeRegExp(separator)}(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)`);
-
-    const text = string.toString().trim();
-    const matches = text.split(regex);
-    const newText: string[] = [];
-
-    for (let word of matches) {
-        word = removeQuotations && word.startsWith('"') && word.endsWith('"') ? trimChars(word, '"') : word;
-        newText.push(word);
-    }
-
-    return newText;
 }
 
 /**
