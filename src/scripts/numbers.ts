@@ -1,3 +1,5 @@
+import { getRandomValues } from 'crypto';
+
 /**
  * 
  * Checks if the given value is a finite number
@@ -15,12 +17,18 @@ export function isNumber(value: unknown): boolean {
 export function randomInt(max: number): number;
 export function randomInt(min: number, max: number): number;
 export function randomInt(min: number, max?: number): number {
+    const randomBuffer = new Uint32Array(1);
+
+    getRandomValues(randomBuffer);
+
+    let randomNumber = randomBuffer[0] / (0xffffffff + 1);
+
     const { mx, mn } = {
         mx: max === undefined ? min : max,
         mn: max === undefined ? 0 : min
     };
 
-    return Math.floor(Math.random() * (mx - mn + 1)) + mn;
+    return Math.floor(randomNumber * (mx - mn + 1)) + mn;
 }
 
 /**
