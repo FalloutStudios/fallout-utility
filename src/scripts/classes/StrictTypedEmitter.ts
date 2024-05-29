@@ -1,7 +1,7 @@
 import EventEmitter from 'node:events';
 import { EventEmitterOptions } from './TypedEmitter';
 
-export interface StringTypedEmitter<Events extends Record<string|symbol, any> = Record<string|symbol, any>> extends EventEmitter {
+export interface StrictTypedEmitter<Events extends Record<string|symbol, any> = Record<string|symbol, any>> extends EventEmitter {
     listenerCount(eventName: keyof Events): number;
 
     listeners(eventName: keyof Events): Function[];
@@ -27,7 +27,7 @@ export interface StringTypedEmitter<Events extends Record<string|symbol, any> = 
     removeListener<K extends keyof Events>(event: K, listener: (...args: Events[K]) => void): this;
 }
 
-export class StringTypedEmitter<Events extends Record<string|symbol, any>> extends EventEmitter {
+export class StrictTypedEmitter<Events extends Record<string|symbol, any>> extends EventEmitter {
     constructor(options?: EventEmitterOptions) {
         super(options);
     }
